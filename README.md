@@ -4,6 +4,7 @@ z14 [zia] is a bot designed to be an extended version of z03 [zoe] from the #inp
 
 ## features
 
+* .ping - pong
 * .km - Will mute Malabar for 5 seconds
 
 ## details
