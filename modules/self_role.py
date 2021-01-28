@@ -114,7 +114,7 @@ class SelfRole(commands.Cog):
 
                 if not role:
                     print("Role {} not found on that server, ignored".format(
-                        role_name
+                        role_name.encode("ascii", "ignore")
                     ))
                     continue
 
@@ -124,7 +124,11 @@ class SelfRole(commands.Cog):
                 :[EMOJI 1]:,[ROLE 1];:[EMOJI 2]:,[ROLE 2]")
 
         print("Self role feature has loaded the following roles: ")
-        print(self.roles_mapping)
+        for emoji, role in self.roles_mapping:
+            print(":{}: to {}".format(
+                emoji.encode("ascii", "ignore"),
+                role.encode("ascii", "ignore")
+            ))
 
 
     async def process_reaction(self, payload, remove=False):

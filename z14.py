@@ -45,12 +45,14 @@ class Z14(commands.Bot):
 
 
     async def give_role(self, member, role):
-        print("Giving role {} to {}".format(role.name, member.name))
+        print("Giving role {} to {}".format(
+            role.name, member.name.encode("ascii", "ignore")))
         await member.add_roles(role)
 
 
     async def remove_role(self, member, role):
-        print("Removing role {} from {}".format(role.name, member.name))
+        print("Removing role {} from {}".format(
+            role.name, member.name.encode("ascii", "ignore")))
         await member.remove_roles(role)
 
 
