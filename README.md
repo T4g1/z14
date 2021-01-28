@@ -32,6 +32,7 @@ python3 z14.py
 
 * .ping - pong
 * .km - Will mute Malabar for 5 seconds
+* .o - Shows you what to do with your opinion
 
 ## details
 
@@ -107,6 +108,18 @@ MALABAR_MUTE_ROLE=Muted
 * MALABAR_HISTORY_MAX_SIZE: Size of the history max before rejecting commands
 * MALABAR_MUTE_TIME: Time to mute in seconds
 * MALABAR_MUTE_ROLE: Role to assign so the user is muted
+
+### Opinion
+
+Send a picture of what to do with your opinion.
+
+#### Config
+
+```
+OPINION_URL=image.jpg
+```
+
+* OPINION_URL: Url of the picture to embed
 
 ## Resilience
 
