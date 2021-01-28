@@ -15,6 +15,7 @@ class SelfRole(commands.Cog):
     """
     def __init__(self, bot):
         self.bot = bot
+        self.channel_id = 0
         self.message_id = 0
         self.roles_mapping = {}
 
@@ -22,24 +23,73 @@ class SelfRole(commands.Cog):
     def test(self):
         assert not os.getenv("ROLE_MESSAGE_ID") is None, \
             "ROLE_MESSAGE_ID is not defined"
+        assert not os.getenv("ROLE_CHANNEL_ID") is None, \
+            "ROLE_CHANNEL_ID is not defined"
         assert not os.getenv("ROLE_EMOJIS") is None, "ROLE_EMOJIS is not defined"
+
+        try:
+            message_id = int(os.getenv("ROLE_MESSAGE_ID", default="0"))
+        except Exception as e:
+            self.fail("ROLE_MESSAGE_ID is not an integer")
+
+        try:
+            message_id = int(os.getenv("ROLE_CHANNEL_ID", default="0"))
+        except Exception as e:
+            self.fail("ROLE_CHANNEL_ID is not an integer")
 
 
     @commands.Cog.listener()
     async def on_ready(self):
-        self.message_id = self.get_role_message_id()
+        self.channel_id = self.get_channel_id()
+        self.message_id = self.get_message_id()
         self.extract_roles_mapping()
 
+        channel = self.bot.get_guild().get_channel(self.channel_id)
+        message = await channel.fetch_message(self.message_id)
 
-    def get_role_message_id(self):
+        # Remove non wanted emojis from role message
+        for message_reaction in message.reactions:
+            if not message_reaction.emoji.name in self.roles_mapping.keys():
+                users = await message_reaction.users().flatten()
+
+                for member in users:
+                    await self.bot.remove_emoji(
+                        member,
+                        message_reaction.emoji,
+                        message.channel.id,
+                        message.id
+                    )
+                break
+
+        for emoji, role in self.roles_mapping.items():
+            # Check the reaction corresponding to that emoji on the message
+            users = []
+            for message_reaction in message.reactions:
+                if message_reaction.emoji.name == emoji:
+                    users = await message_reaction.users().flatten()
+                    break
+
+            for member in self.bot.get_guild().members:
+                # User have the role but has not reacted
+                if role in member.roles:
+                    if not member in users:
+                       await self.bot.remove_role(member, role)
+                # User does not have the role but has reacted
+                else:
+                    if member in users:
+                        await self.bot.give_role(member, role)
+
+
+    def get_channel_id(self):
+        """Gives the ID of the channel used to allow users to select their roles
+        """
+        return int(os.getenv("ROLE_CHANNEL_ID", default="0"))
+
+
+    def get_message_id(self):
         """Gives the ID of the message used to allow users to select their roles
         """
-        try:
-            message_id = os.getenv("ROLE_MESSAGE_ID", default="0")
-            return int(message_id)
-        except Exception as e:
-            raise Exception("Error while trying to read ROLE_MESSAGE_ID, \
-                make sure it's defined and it is an integer")
+        return int(os.getenv("ROLE_MESSAGE_ID", default="0"))
 
 
     def extract_roles_mapping(self):
@@ -77,7 +127,7 @@ class SelfRole(commands.Cog):
         print(self.roles_mapping)
 
 
-    async def manage_role(self, payload, remove=False):
+    async def process_reaction(self, payload, remove=False):
         """
         Analyse the payload's emoji to determine which role to add or remove
         """
@@ -87,26 +137,16 @@ class SelfRole(commands.Cog):
             if remove:
                 return
 
-            # Remove the emoji
-            channel = bot.get_channel(payload.channel_id)
-            message = await channel.fetch_message(payload.message_id)
-            await message.remove_reaction(payload.emoji, member)
+            await self.bot.remove_emoji(
+                member, payload.emoji, payload.channel_id, payload.message_id)
             return
 
         role = self.roles_mapping[payload.emoji.name]
 
         if remove:
-            await member.remove_roles(role)
-
-            print("Removing role {} from {}".format(
-                role.name, member.name
-            ))
+            await self.bot.remove_role(member, role)
         else:
-            await member.add_roles(role)
-
-            print("Adding role {} to {}".format(
-                role.name, member.name
-            ))
+            await self.bot.give_role(member, role)
 
 
     @commands.Cog.listener()
@@ -114,7 +154,7 @@ class SelfRole(commands.Cog):
         if payload.message_id != self.message_id:
             return
 
-        await manage_role(payload, remove=False)
+        await self.process_reaction(payload, remove=False)
 
 
     @commands.Cog.listener()
@@ -122,6 +162,6 @@ class SelfRole(commands.Cog):
         if payload.message_id != self.message_id:
             return
 
-        await manage_role(payload, remove=True)
+        await self.process_reaction(payload, remove=True)
 
 

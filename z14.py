@@ -44,6 +44,25 @@ class Z14(commands.Bot):
         print("z14 is ready")
 
 
+    async def give_role(self, member, role):
+        print("Giving role {} to {}".format(role.name, member.name))
+        await member.add_roles(role)
+
+
+    async def remove_role(self, member, role):
+        print("Removing role {} from {}".format(role.name, member.name))
+        await member.remove_roles(role)
+
+
+    async def remove_emoji(self, member, emoji, channel_id, message_id):
+        """
+        Removes an emoji from the given message
+        """
+        channel = self.get_guild().get_channel(channel_id)
+        message = await channel.fetch_message(message_id)
+        await message.remove_reaction(emoji, member)
+
+
 if __name__ == "__main__":
     load_dotenv()
 

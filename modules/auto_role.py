@@ -35,16 +35,11 @@ class AutoRole(commands.Cog):
 
         for member in self.bot.get_guild().members:
             if len(member.roles) == 1:
-                await self.give_role(member)
+                await self.bot.give_role(member, self.role)
 
 
     @commands.Cog.listener()
     async def on_member_join(self, member):
         """ Gives new member a pre-defined role
         """
-        await self.give_role(member)
-
-
-    async def give_role(self, member):
-        print("Giving role {} to {}".format(self.role.name, member.name))
-        await member.add_roles(self.role)
+        await self.bot.give_role(member, self.role)
