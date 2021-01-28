@@ -11,6 +11,10 @@ class KickMalabar(commands.Cog):
         self.bot = bot
 
 
+    def test(self):
+        assert not os.getenv("MALABAR") is None, "MALABAR is not defined"
+
+
     @commands.command(name="km")
     async def kick_malabar(self, ctx):
         """ Mute Malabar

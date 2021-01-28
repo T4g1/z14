@@ -19,6 +19,12 @@ class SelfRole(commands.Cog):
         self.roles_mapping = {}
 
 
+    def test(self):
+        assert not os.getenv("ROLE_MESSAGE_ID") is None, \
+            "ROLE_MESSAGE_ID is not defined"
+        assert not os.getenv("ROLE_EMOJIS") is None, "ROLE_EMOJIS is not defined"
+
+
     @commands.Cog.listener()
     async def on_ready(self):
         self.message_id = self.get_role_message_id()

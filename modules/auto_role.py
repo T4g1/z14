@@ -14,6 +14,10 @@ class AutoRole(commands.Cog):
         self.bot = bot
 
 
+    def test(self):
+        assert not os.getenv("AUTO_ROLE") is None, "AUTO_ROLE is not defined"
+
+
     @commands.Cog.listener()
     async def on_member_join(self, member):
         """ Gives new member a pre-defined role
