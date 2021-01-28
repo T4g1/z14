@@ -57,3 +57,12 @@ Based on the original km for kick malabar
 
 * Can not be used more than 3 times a day
 * Duration of mute is hardcoded to 5 seconds
+
+## Resilience
+
+The bot need to make sure the following is always true when re-started 
+after a crash or update:
+* All self-assigned roles are consistent with the emojis on the self 
+assigned role message for every users
+* All emojis not mapped are removed from the message for self-roles
+* All users have at least the default role assigned to them
