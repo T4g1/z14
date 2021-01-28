@@ -1,5 +1,6 @@
 import os
 import datetime
+import asyncio
 
 from discord.ext import commands
 
@@ -15,6 +16,8 @@ class KickMalabar(commands.Cog):
         self.history_max_size = int(os.getenv("MALABAR_HISTORY_MAX_SIZE"))
         self.history_max_time = datetime.timedelta(
             hours=int(os.getenv("MALABAR_HISTORY_MAX_TIME")))
+
+        self.is_currently_muted = False
 
 
     def test(self):
@@ -55,6 +58,21 @@ class KickMalabar(commands.Cog):
         return len(self.history) < self.history_max_size
 
 
+    async def update_mute(self):
+        if self.malabar.voice:
+            await self.malabar.edit(mute=self.is_currently_muted)
+
+
+    @commands.Cog.listener()
+    async def on_voice_state_update(self, member, before, after):
+        if not member is self.malabar:
+            return
+
+        # Connect
+        if before.channel is None and not after.channel is None:
+            await self.update_mute()
+
+
     @commands.Cog.listener()
     async def on_ready(self):
         malabar_name = os.getenv("MALABAR", default="")
@@ -83,10 +101,27 @@ class KickMalabar(commands.Cog):
                 os.getenv("MALABAR")
             ))
 
+        elif self.is_currently_muted:
+            await ctx.send("He is already muted... Slow down...")
+
+            print("Trying to mute while already muted...")
+
         else:
+            self.is_currently_muted = True
+            await self.update_mute()
+
             await ctx.send("{} TAGUEULE".format(self.malabar.mention))
 
             self.history.append(datetime.datetime.utcnow())
             print("km invoked {} times during the last {} hours".format(
                 len(self.history), os.getenv("MALABAR_HISTORY_MAX_TIME")
+            ))
+
+            await asyncio.sleep(self.mute_time)
+
+            self.is_currently_muted = False
+            await self.update_mute()
+
+            print("{} is now free to speak".format(
+                os.getenv("MALABAR")
             ))

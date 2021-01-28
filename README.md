@@ -99,12 +99,14 @@ MALABAR=Jonh#0538
 MALABAR_HISTORY_MAX_TIME=1
 MALABAR_HISTORY_MAX_SIZE=10
 MALABAR_MUTE_TIME=5
+MALABAR_MUTE_ROLE=Muted
 ```
 
 * MALABAR: Username and discriminator of the user to mute
 * MALABAR_HISTORY_MAX_TIME: How many hours we keep for the history
 * MALABAR_HISTORY_MAX_SIZE: Size of the history max before rejecting commands
 * MALABAR_MUTE_TIME: Time to mute in seconds
+* MALABAR_MUTE_ROLE: Role to assign so the user is muted
 
 ## Resilience
 
