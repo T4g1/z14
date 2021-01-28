@@ -124,10 +124,10 @@ class SelfRole(commands.Cog):
                 :[EMOJI 1]:,[ROLE 1];:[EMOJI 2]:,[ROLE 2]")
 
         print("Self role feature has loaded the following roles: ")
-        for emoji, role in self.roles_mapping:
+        for emoji, role in self.roles_mapping.items():
             print(":{}: to {}".format(
                 emoji.encode("ascii", "ignore"),
-                role.encode("ascii", "ignore")
+                role.name.encode("ascii", "ignore")
             ))
 
 
