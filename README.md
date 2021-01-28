@@ -37,9 +37,25 @@ python3 z14.py
 
 You need to configure the bot token in TOKEN
 
-### Default role
+```
+TOKEN=ifapme
+```
+
+* TOKEN: Secret TOKEN of the bot
+
+### Auto role
 
 New users added to the server will get the role defined in AUTO_ROLE
+
+#### Config
+
+```
+AUTO_ROLE=Joueur
+```
+
+* AUTO_ROLE: Name of the role to be added by default
+
+### km
 
 ### Self assigned roles
 
@@ -50,6 +66,18 @@ amongus,Among Us;csgo,Counter-Strike Global Offensive
 ```
 
 The ID of the message users have to react to is given by ROLE_MESSAGE_ID
+
+#### Config
+
+```
+ROLE_CHANNEL_ID=803356817533960213
+ROLE_MESSAGE_ID=803361607652081734
+ROLE_EMOJIS=amongus,Among Us;csgo,Counter-Strike Global Offensive
+```
+
+* ROLE_CHANNEL_ID: ID of the channel where the message is
+* ROLE_MESSAGE_ID: ID of the message to react to
+* ROLE_EMOJIS: `;` separated list of mapping of emoji's name to role's name (`,` separated list)
 
 ### km
 
@@ -63,6 +91,20 @@ Based on the original km for kick malabar
 * Unmute Malabar when the timer expires
 * Refuses any subsequent km while Malabar is muted by the command
 * Detects if Malabar is in a vocal channel
+
+#### Config
+
+```
+MALABAR=Jonh#0538
+MALABAR_HISTORY_MAX_TIME=1
+MALABAR_HISTORY_MAX_SIZE=10
+MALABAR_MUTE_TIME=5
+```
+
+* MALABAR: Username and discriminator of the user to mute
+* MALABAR_HISTORY_MAX_TIME: How many hours we keep for the history
+* MALABAR_HISTORY_MAX_SIZE: Size of the history max before rejecting commands
+* MALABAR_MUTE_TIME: Time to mute in seconds
 
 ## Resilience
 
