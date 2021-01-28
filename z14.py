@@ -176,7 +176,7 @@ async def kick_malabar(ctx):
         print("{} is not on the server...".format(malabar_name))
         return
 
-    await ctx.send("{} TAGEULE".format(malabar.mention))
+    await ctx.send("{} TAGUEULE".format(malabar.mention))
 
 
 bot.run(os.getenv("TOKEN"))
