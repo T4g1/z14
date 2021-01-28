@@ -2,6 +2,25 @@
 
 z14 [zia] is a bot designed to be an extended version of z03 [zoe] from the #inpres chan from maxux.net IRC.
 
+## setup
+
+Install requirements:
+```
+pip3 install -r requirements.txt
+```
+
+Make a local copy of .env:
+```
+cp .env.sample .env
+```
+
+Setup values inside .env according to your environment and settings.
+
+Run z14!
+```
+python3 z14.py
+```
+
 ## features
 
 * Reads configuration from .env file

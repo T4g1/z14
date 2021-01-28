@@ -40,12 +40,12 @@ def extract_roles_mapping(guild):
     """ Extract mapping of emoji to role to assign roles to users
     that add the emoji to the message with ID ROLE_MESSAGE_ID
     """
-    raw_mapping = os.getenv("ROLE_EMOJIS")
+    raw_mapping = os.getenv("ROLE_EMOJIS", default="")
 
     bot.roles_mapping = {}
 
     try:
-        raw_mappings = os.getenv("ROLE_EMOJIS").split(";")
+        raw_mappings = raw_mapping.split(";")
 
         for raw_mapping in raw_mappings:
             if raw_mapping == "":
@@ -102,7 +102,13 @@ async def manage_role(payload, remove=False):
 
 
 def self_test():
-    pass
+    assert not os.getenv("TOKEN") is None, \
+        "TOKEN not found: Make sur you have a .env at z14 root"
+
+    assert not os.getenv("AUTO_ROLE") is None, "AUTO_ROLE is not defined"
+    assert not os.getenv("MALABAR") is None, "MALABAR is not defined"
+    assert not os.getenv("ROLE_MESSAGE") is None, "ROLE_MESSAGE is not defined"
+    assert not os.getenv("ROLE_EMOJIS") is None, "ROLE_EMOJIS is not defined"
 
 
 @bot.event
@@ -142,7 +148,7 @@ async def on_member_join(member):
     """
     auto_role = os.getenv("AUTO_ROLE", default="Joueur")
 
-    role = discord.utils.get(member.guild.roles, name=os.getenv("AUTO_ROLE"))
+    role = discord.utils.get(member.guild.roles, name=auto_role)
     if role:
         await member.add_roles(role)
     else:
@@ -160,7 +166,7 @@ async def ping(ctx):
 async def kick_malabar(ctx):
     """ Mute Malabar
     """
-    malabar_name = os.getenv("MALABAR")
+    malabar_name = os.getenv("MALABAR", default="")
     if not malabar_name:
         print("You have'nt configured a malabar username")
         return
