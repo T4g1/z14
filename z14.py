@@ -11,6 +11,7 @@ class Z14(commands.Bot):
         self.modules = [
             modules.AutoRole(bot),
             modules.SelfRole(bot),
+            modules.Opinion(bot),
             modules.Ping(bot),
             modules.KickMalabar(bot),
         ]
