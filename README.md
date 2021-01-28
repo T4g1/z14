@@ -57,3 +57,9 @@ Based on the original km for kick malabar
 
 * Can not be used more than 3 times a day
 * Duration of mute is hardcoded to 5 seconds
+* Keep track of how many times the command was used in the last 24hours
+* How much time Malabar spent muted in the last 24hours
+* Mute Malabar for an arbitrary amount of time
+* Unmute Malabar when the timer expires
+* Refuses any subsequent km while Malabar is muted by the command
+* Detects if Malabar is in a vocal channel
