@@ -28,4 +28,4 @@ class KickMalabar(commands.Cog):
         if not malabar:
             await ctx.send("Il est parti du serveur :'(".format(malabar_name))
         else:
-            await ctx.send("{} TAGEULE".format(malabar.mention))
+            await ctx.send("{} TAGUEULE".format(malabar.mention))
