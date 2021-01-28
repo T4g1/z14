@@ -107,7 +107,8 @@ def self_test():
 
     assert not os.getenv("AUTO_ROLE") is None, "AUTO_ROLE is not defined"
     assert not os.getenv("MALABAR") is None, "MALABAR is not defined"
-    assert not os.getenv("ROLE_MESSAGE") is None, "ROLE_MESSAGE is not defined"
+    assert not os.getenv("ROLE_MESSAGE_ID") is None, \
+        "ROLE_MESSAGE_ID is not defined"
     assert not os.getenv("ROLE_EMOJIS") is None, "ROLE_EMOJIS is not defined"
 
 
@@ -173,10 +174,9 @@ async def kick_malabar(ctx):
 
     malabar = ctx.guild.get_member_named(malabar_name)
     if not malabar:
-        print("{} is not on the server...".format(malabar_name))
-        return
-
-    await ctx.send("{} TAGEULE".format(malabar.mention))
+        await ctx.send("Il est parti du serveur :'(".format(malabar_name))
+    else:
+        await ctx.send("{} TAGEULE".format(malabar.mention))
 
 
 bot.run(os.getenv("TOKEN"))
