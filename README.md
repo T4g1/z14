@@ -63,3 +63,12 @@ Based on the original km for kick malabar
 * Unmute Malabar when the timer expires
 * Refuses any subsequent km while Malabar is muted by the command
 * Detects if Malabar is in a vocal channel
+
+## Resilience
+
+The bot need to make sure the following is always true when re-started 
+after a crash or update:
+* All self-assigned roles are consistent with the emojis on the self 
+assigned role message for every users
+* All emojis not mapped are removed from the message for self-roles
+* All users have at least the default role assigned to them
