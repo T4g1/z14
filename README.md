@@ -32,6 +32,7 @@ python3 z14.py
 
 * .ping - pong
 * .km - Will mute Malabar for 5 seconds
+* .kt - Will say "Dans tes rêves @[user]"
 * .o - Shows you what to do with your opinion
 
 ## details

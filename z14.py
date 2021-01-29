@@ -14,6 +14,7 @@ class Z14(commands.Bot):
             modules.Opinion(bot),
             modules.Ping(bot),
             modules.KickMalabar(bot),
+            modules.KickT4g1(bot),
         ]
 
         for module in self.modules:
