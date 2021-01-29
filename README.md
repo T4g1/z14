@@ -32,6 +32,7 @@ python3 z14.py
 
 * .ping - pong
 * .km - Will mute Malabar for 5 seconds
+* .kt - Will say "Dans tes rêves @[user]"
 * .o - Shows you what to do with your opinion
 
 ## details
@@ -80,7 +81,7 @@ ROLE_EMOJIS=amongus,Among Us;csgo,Counter-Strike Global Offensive
 * ROLE_MESSAGE_ID: ID of the message to react to
 * ROLE_EMOJIS: `;` separated list of mapping of emoji's name to role's name (`,` separated list)
 
-### km
+### Kick Malabar
 
 Based on the original km for kick malabar
 
@@ -108,6 +109,13 @@ MALABAR_MUTE_ROLE=Muted
 * MALABAR_HISTORY_MAX_SIZE: Size of the history max before rejecting commands
 * MALABAR_MUTE_TIME: Time to mute in seconds
 * MALABAR_MUTE_ROLE: Role to assign so the user is muted
+
+### Kick T4g1
+
+Whoever invokes it will be flagged as a dangerous criminal
+
+* kt will give a nice message to whoever invoked it
+* z14 will try to intimidate whoever sent it
 
 ### Opinion
 
