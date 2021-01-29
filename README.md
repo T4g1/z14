@@ -115,6 +115,7 @@ MALABAR_MUTE_ROLE=Muted
 Whoever invokes it will be flagged as a dangerous criminal
 
 * kt will give a nice message to whoever invoked it
+* z14 will try to intimidate whoever sent it
 
 ### Opinion
 
