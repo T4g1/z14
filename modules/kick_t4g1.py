@@ -21,3 +21,4 @@ class KickT4g1(commands.Cog):
         """ Tells the user to go fuck itself
         """
         await ctx.send("Dans tes rêves {}".format(ctx.author.mention))
+        await ctx.author.send("*Fear the wrath of T4g1*")
