@@ -4,4 +4,5 @@ from .kick_malabar import KickMalabar
 from .kick_t4g1 import KickT4g1
 from .opinion import Opinion
 from .ping import Ping
+from .score_tracker import ScoreTracker
 from .self_role import SelfRole
