@@ -135,6 +135,56 @@ OPINION_URL=image.jpg
 
 * OPINION_URL: Url of the picture to embed
 
+### Score Tracker: T4g1
+
+Track T4g1 scores on jokes, provide its current average score as well as useful statistics.
+
+Add score
+>.score +x
+
+Remove score
+>.score -x
+
+Display score average
+>.score avg
+
+Display other statistics
+>.score stats
+
+Only @paglops should be able to use the feature.
+
+#### Scoring
+**Add new scores**
+The score is calculated over 10 points, with 0 being the lowest and 10 the highest.
+After each joke, the score is input with 
+> .score x
+
+where x = score sur [-10;10]
+
+**Correct score**
+In case of error, the scores which have been input in the last 60m can be removed.
+> .score correct x
+
+The functionality must check x against the latest input value & remove only one which matches.
+
+#### Statistics
+**Current average**
+The current average is calculated by SOMME(score)/COUNT(score)
+
+**Other statistics**
+- Trend over the past week / month / year
+- Highest / lowest score - All time
+- Highest / lowest score - Last month
+- Highest / lowest score - Last week
+
+#### Config
+
+```
+SCORE_TRACKER_USER=[username]#[discriminator]
+```
+
+* SCORE_TRACKER_USER: Configure privilegied user for whom this command is available
+
 ## Resilience
 
 The bot need to make sure the following is always true when re-started 
