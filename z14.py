@@ -9,12 +9,14 @@ from discord.ext import commands
 class Z14(commands.Bot):
     def setup(self):
         self.modules = [
-            modules.AutoRole(bot),
-            modules.SelfRole(bot),
-            modules.Opinion(bot),
-            modules.Ping(bot),
+            modules.FeatureRequest(bot),
             modules.KickMalabar(bot),
             modules.KickT4g1(bot),
+            modules.Opinion(bot),
+            modules.Ping(bot),
+
+            modules.AutoRole(bot),
+            modules.SelfRole(bot),
         ]
 
         for module in self.modules:

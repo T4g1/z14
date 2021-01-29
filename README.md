@@ -34,6 +34,7 @@ python3 z14.py
 * .km - Will mute Malabar for 5 seconds
 * .kt - Will say "Dans tes rêves @[user]"
 * .o - Shows you what to do with your opinion
+* .fr [title] [description] - Will add a feature request into z14's repository
 
 ## details
 
@@ -57,7 +58,12 @@ AUTO_ROLE=Joueur
 
 * AUTO_ROLE: Name of the role to be added by default
 
-### km
+### Feature Request
+
+Will send the feature request in the Git repository as an issue (just kidding, 
+trolls the user thats all)
+
+* .fr [title] [description]
 
 ### Self assigned roles
 
