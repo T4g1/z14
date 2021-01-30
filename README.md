@@ -146,10 +146,10 @@ Remove score
 >.score -x
 
 Display score average
->.score avg
+>.savg
 
 Display other statistics
->.score stats
+>.sstats
 
 Only SCORE_TRACKER_USER should be able to use the feature.
 

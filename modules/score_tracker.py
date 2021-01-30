@@ -6,6 +6,8 @@ from discord.ext import commands
 
 
 DEFAULT_PATH = "score_tracker.dat"
+MIN_SCORE = -10
+MAX_SCORE = 10
 
 
 class ScoreTracker(commands.Cog):
@@ -61,21 +63,6 @@ class ScoreTracker(commands.Cog):
         print("Score tracker entry removed")
 
 
-    async def sanitize_score(self, ctx, raw_score):
-        try:
-            score = int(raw_score)
-
-            if score > 10 or score < -10:
-                raise ValueError("Value out of range")
-
-            return score
-        except ValueError:
-            await ctx.send("It's not a valid score!" \
-                " Range is [-10, 10], you gave {}".format(raw_score))
-
-            raise ValueError("Bad value given")
-
-
     def load(self):
         """ Load persisted data from disk
         """
@@ -105,8 +92,31 @@ class ScoreTracker(commands.Cog):
             os.getenv("SCORE_TRACKER_PATH", default=DEFAULT_PATH), index=False)
 
 
+    def is_in_range(self, value):
+        """ Tells if the value is in range
+        """
+        return value >= MIN_SCORE and value <= MAX_SCORE
+
+
+    async def is_tracker_user(ctx):
+        return ctx.author == ctx.cog.tracker_user
+
+
+    @commands.Cog.listener()
+    async def on_ready(self):
+        tracker_user_name = os.getenv("SCORE_TRACKER_USER", default="")
+        self.tracker_user = self.bot.get_guild().get_member_named(tracker_user_name)
+
+        tracker_target_name = os.getenv("SCORE_TRACKER_TARGET", default="")
+        self.tracker_target = self.bot.get_guild().get_member_named(tracker_target_name)
+
+        assert self.tracker_user, \
+            "The privilegied user was not found, check configuration"
+
+
+    @commands.command(name="savg")
     async def average(self, ctx):
-        """ Show average of score
+        """ Displays score tracker average score
         """
         if len(self.history) <= 0:
             return await ctx.send(
@@ -119,8 +129,9 @@ class ScoreTracker(commands.Cog):
         print("Giving score tracking average")
 
 
+    @commands.command(name="sstats")
     async def stats(self, ctx):
-        """ Displays stats
+        """ Displays score tracker stats
         """
         if len(self.history) <= 0:
             return await ctx.send("No score given yet, can't stat the void yet")
@@ -154,38 +165,16 @@ class ScoreTracker(commands.Cog):
         print("Giving score tracking stats")
 
 
-    @commands.Cog.listener()
-    async def on_ready(self):
-        tracker_user_name = os.getenv("SCORE_TRACKER_USER", default="")
-        self.tracker_user = self.bot.get_guild().get_member_named(tracker_user_name)
-
-        tracker_target_name = os.getenv("SCORE_TRACKER_TARGET", default="")
-        self.tracker_target = self.bot.get_guild().get_member_named(tracker_target_name)
-
-        assert self.tracker_user, \
-            "The privilegied user was not found, check configuration"
-
-
     @commands.command()
-    async def score(self, ctx, score):
-        """ .score x: Add score
-        score -x: Remove score
-        score avg display score average
-        score stats show statistics
+    @commands.check(is_tracker_user)
+    async def score(self, ctx, score: int):
+        """ [score]/-[score]: Add/remove score
         """
-        if score == "avg":
-            return await self.average(ctx)
-        elif score == "stats":
-            return await self.stats(ctx)
-
-        if ctx.author != self.tracker_user:
-            return await ctx.send("Only {} can use this command!".format(
-                self.tracker_user.mention))
-
-        try:
-            score = await self.sanitize_score(ctx, score)
-        except ValueError:
-            return
+        if not self.is_in_range(score):
+            return await ctx.send("It's not a valid score!" \
+                " Range is [{}, {}], you gave {}".format(
+                    MIN_SCORE, MAX_SCORE, score
+            ))
 
         self.add_score(score)
 
@@ -198,27 +187,23 @@ class ScoreTracker(commands.Cog):
 
 
     @commands.command()
-    async def fix(self, ctx, score):
-        """ fix x: Used to fix the latest score entered
+    @commands.check(is_tracker_user)
+    async def fix(self, ctx, score: int):
+        """ [score]: Used to fix the latest score entered
         Available during SCORE_TRACKER_CORRECTION_TIME minutes
         """
-        if ctx.author != self.tracker_user:
-            return await ctx.send("Only {} can use this command!".format(
-                self.tracker_user.mention))
-
         if len(self.history) <= 0:
-            await ctx.send("I have no score to fix!")
-            return
+            return await ctx.send("I have no score to fix!")
 
         if datetime.utcnow() - self.history.loc[-1]["date"] > self.fix_time:
-            await ctx.send("It's too late to go back now, " \
+            return await ctx.send("It's too late to go back now, " \
                 "you will have to live with that mistake forever")
-            return
 
-        try:
-            score = await self.sanitize_score(ctx, score)
-        except ValueError:
-            return
+        if not self.is_in_range(score):
+            return await ctx.send("It's not a valid score!" \
+                " Range is [{}, {}], you gave {}".format(
+                    MIN_SCORE, MAX_SCORE, score
+            ))
 
         if self.history.loc[-1].score == score:
             self.remove_last()
@@ -228,3 +213,17 @@ class ScoreTracker(commands.Cog):
         else:
             await ctx.send("Score does not match! Score was: {}".format(
                 self.history.loc[-1].score))
+
+
+    @score.error
+    @fix.error
+    async def error_handler(self, ctx, error):
+        if isinstance(error, commands.MissingRequiredArgument):
+            await ctx.send("The following argument is missing: {}".format(
+                error.param))
+
+        elif isinstance(error, commands.BadArgument):
+            await ctx.send("The score need to be an integer")
+
+        else:
+            print("Encountered unexpected error: {} {}".format(error, type(error)))
