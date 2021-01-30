@@ -9,8 +9,10 @@ from discord.ext import commands
 class Z14(commands.Bot):
     def setup(self):
         self.modules = [
+            modules.EtOnMBan(bot),
             modules.FeatureRequest(bot),
             modules.KickMalabar(bot),
+            modules.KickPaglops(bot),
             modules.KickT4g1(bot),
             modules.Opinion(bot),
             modules.Ping(bot),

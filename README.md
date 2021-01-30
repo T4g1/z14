@@ -6,6 +6,7 @@ z14 [zia] is a bot designed to be an extended version of z03 [zoe] from the #inp
 
 Install requirements:
 ```
+sudo apt install ffmpeg
 pip3 install -r requirements.txt
 ```
 
@@ -32,9 +33,15 @@ python3 z14.py
 
 * .ping - pong
 * .km - Will mute Malabar for 5 seconds
+* .kp - Send a coucou to paglops
 * .kt - Will say "Dans tes rêves @[user]"
 * .o - Shows you what to do with your opinion
 * .fr [title] [description] - Will add a feature request into z14's repository
+* .ban - Plays the "Et on m'ban" sample
+* .sstats - Stats on score tracking
+* .savg - Average of score tracking
+* .score [score]/-[score] - Add the given score
+* .fix [score]/-[score] - Remove latest score
 
 ## details
 
@@ -116,6 +123,20 @@ MALABAR_MUTE_ROLE=Muted
 * **MALABAR_MUTE_TIME**: Time to mute in seconds
 * **MALABAR_MUTE_ROLE**: Role to assign so the user is muted
 
+### Kick Paglops
+
+Embeds an horrible pirate where invoked
+
+* kp will send a pirate into the channel
+
+#### Config
+
+```
+PAGLOPS_URL=image.jpg
+```
+
+* PAGLOPS_URL: Url of the pirate picture
+
 ### Kick T4g1
 
 Whoever invokes it will be flagged as a dangerous criminal
@@ -190,6 +211,20 @@ SCORE_TRACKER_FIX_TIME=15
 * **SCORE_TRACKER_USER**: Configure privilegied user for whom this command is available
 * **SCORE_TRACKER_TARGET**: User for whom this command scores
 * **SCORE_TRACKER_FIX_TIME**: Time during which we can fix the latest score command
+
+### Et on m'ban
+
+Joins the user that invokes it in vocal and plays the sample
+
+* .ban - Do that sample!
+
+#### Config
+
+```
+BAN_URL=[ban URL]
+```
+
+* **BAN_URL**: Where is the sample to play located at
 
 ## Resilience
 
