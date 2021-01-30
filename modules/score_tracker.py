@@ -108,6 +108,10 @@ class ScoreTracker(commands.Cog):
     async def average(self, ctx):
         """ Show average of score
         """
+        if len(self.history) <= 0:
+            return await ctx.send(
+                "No score given yet, can't average the void yet")
+
         avg = self.history["score"].sum() / len(self.history)
 
         await ctx.send("Average score: {:.2f}".format(avg))
@@ -118,6 +122,9 @@ class ScoreTracker(commands.Cog):
     async def stats(self, ctx):
         """ Displays stats
         """
+        if len(self.history) <= 0:
+            return await ctx.send("No score given yet, can't stat the void yet")
+
         df = self.history
 
         first_of_month = datetime.utcnow().date().replace(day=1)
