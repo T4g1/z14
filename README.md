@@ -43,6 +43,7 @@ python3 z14.py
 * .fix [score]/-[score] - Remove latest score
 * .ban - Plays the "Et on m'ban" sample
 * .drum - Play the legendary ba dum tss sound effect
+* .bp - Sends a picture to a specific channel
 
 ## details
 
@@ -237,6 +238,20 @@ SFX_DRUM_URL=[drum URL]
 
 * **SFX_BAN_URL**: Ban sound effect location
 * **SFX_DRUM_URL**: Drum sound effect location
+
+### Popof
+
+Sends a picture to a specific channel
+
+#### Config
+
+```
+POPOF_URL=[URL]
+POPOF_CHANNEL=[ID of the chan where it can be used]
+```
+
+* **POPOF_URL**: What image to send
+* **POPOF_CHANNEL**: Where to send the image
 
 ## Dev
 
