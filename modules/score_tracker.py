@@ -166,14 +166,14 @@ class ScoreTracker(commands.Cog):
         score avg display score average
         score stats show statistics
         """
-        if ctx.author != self.tracker_user:
-            return await ctx.send("Only {} can use this command!".format(
-                self.tracker_user.mention))
-
         if score == "avg":
             return await self.average(ctx)
         elif score == "stats":
             return await self.stats(ctx)
+
+        if ctx.author != self.tracker_user:
+            return await ctx.send("Only {} can use this command!".format(
+                self.tracker_user.mention))
 
         try:
             score = await self.sanitize_score(ctx, score)
