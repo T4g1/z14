@@ -116,6 +116,20 @@ MALABAR_MUTE_ROLE=Muted
 * **MALABAR_MUTE_TIME**: Time to mute in seconds
 * **MALABAR_MUTE_ROLE**: Role to assign so the user is muted
 
+### Kick Paglops
+
+Embeds an horrible pirate where invoked
+
+* kp will send a pirate into the channel
+
+#### Config
+
+```
+PAGLOPS_URL=image.jpg
+```
+
+* PAGLOPS_URL: Url of the pirate picture
+
 ### Kick T4g1
 
 Whoever invokes it will be flagged as a dangerous criminal
