@@ -44,7 +44,7 @@ You need to configure the bot token in TOKEN
 TOKEN=ifapme
 ```
 
-* TOKEN: Secret TOKEN of the bot
+* **TOKEN**: Secret TOKEN of the bot
 
 ### Auto role
 
@@ -56,7 +56,7 @@ New users added to the server will get the role defined in AUTO_ROLE
 AUTO_ROLE=Joueur
 ```
 
-* AUTO_ROLE: Name of the role to be added by default
+* **AUTO_ROLE**: Name of the role to be added by default
 
 ### Feature Request
 
@@ -83,9 +83,9 @@ ROLE_MESSAGE_ID=803361607652081734
 ROLE_EMOJIS=amongus,Among Us;csgo,Counter-Strike Global Offensive
 ```
 
-* ROLE_CHANNEL_ID: ID of the channel where the message is
-* ROLE_MESSAGE_ID: ID of the message to react to
-* ROLE_EMOJIS: `;` separated list of mapping of emoji's name to role's name (`,` separated list)
+* **ROLE_CHANNEL_ID**: ID of the channel where the message is
+* **ROLE_MESSAGE_ID**: ID of the message to react to
+* **ROLE_EMOJIS**: `;` separated list of mapping of emoji's name to role's name (`,` separated list)
 
 ### Kick Malabar
 
@@ -110,11 +110,11 @@ MALABAR_MUTE_TIME=5
 MALABAR_MUTE_ROLE=Muted
 ```
 
-* MALABAR: Username and discriminator of the user to mute
-* MALABAR_HISTORY_MAX_TIME: How many hours we keep for the history
-* MALABAR_HISTORY_MAX_SIZE: Size of the history max before rejecting commands
-* MALABAR_MUTE_TIME: Time to mute in seconds
-* MALABAR_MUTE_ROLE: Role to assign so the user is muted
+* **MALABAR**: Username and discriminator of the user to mute
+* **MALABAR_HISTORY_MAX_TIME**: How many hours we keep for the history
+* **MALABAR_HISTORY_MAX_SIZE**: Size of the history max before rejecting commands
+* **MALABAR_MUTE_TIME**: Time to mute in seconds
+* **MALABAR_MUTE_ROLE**: Role to assign so the user is muted
 
 ### Kick T4g1
 
@@ -180,14 +180,16 @@ The current average is calculated by SOMME(score)/COUNT(score)
 #### Config
 
 ```
+SCORE_TRACKER_PATH=[filepath]
 SCORE_TRACKER_USER=[username]#[discriminator]
 SCORE_TRACKER_TARGET=[username]#[discriminator]
 SCORE_TRACKER_FIX_TIME=15
 ```
 
-* SCORE_TRACKER_USER: Configure privilegied user for whom this command is available
-* SCORE_TRACKER_TARGET: User for whom this command scores
-* SCORE_TRACKER_FIX_TIME: Time during which we can fix the latest score command
+* **SCORE_TRACKER_PATH**: Where to save data. defaults to `score_tracker.dat`
+* **SCORE_TRACKER_USER**: Configure privilegied user for whom this command is available
+* **SCORE_TRACKER_TARGET**: User for whom this command scores
+* **SCORE_TRACKER_FIX_TIME**: Time during which we can fix the latest score command
 
 ## Resilience
 
