@@ -6,6 +6,7 @@ z14 [zia] is a bot designed to be an extended version of z03 [zoe] from the #inp
 
 Install requirements:
 ```
+sudo apt install ffmpeg
 pip3 install -r requirements.txt
 ```
 
