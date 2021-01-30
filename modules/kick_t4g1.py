@@ -4,9 +4,7 @@ from discord.ext import commands
 
 
 class KickT4g1(commands.Cog):
-    """
-    This class does the following:
-    - Every time the command is invoked, it tells the user to go fuck itslef
+    """ Every time the command is invoked, it tells the user to go fuck itslef
     """
     def __init__(self, bot):
         self.bot = bot

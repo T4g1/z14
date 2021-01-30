@@ -6,8 +6,7 @@ from discord.ext import commands
 
 
 class KickMalabar(commands.Cog):
-    """
-    Command that will mute Malabar
+    """ Command that will mute Malabar
     """
     def __init__(self, bot):
         self.bot = bot
@@ -81,7 +80,7 @@ class KickMalabar(commands.Cog):
 
     @commands.command(name="km")
     async def kick_malabar(self, ctx):
-        """ Mute Malabar
+        """ Mute Malabar for some time
         """
         self.update_history()
 

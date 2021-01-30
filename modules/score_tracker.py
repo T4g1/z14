@@ -116,7 +116,7 @@ class ScoreTracker(commands.Cog):
 
     @commands.command(name="savg")
     async def average(self, ctx):
-        """ .sstats: Displays score tracker average score
+        """ Displays score tracker average score
         """
         if len(self.history) <= 0:
             return await ctx.send(
@@ -131,7 +131,7 @@ class ScoreTracker(commands.Cog):
 
     @commands.command(name="sstats")
     async def stats(self, ctx):
-        """ .sstats: Displays score tracker stats
+        """ Displays score tracker stats
         """
         if len(self.history) <= 0:
             return await ctx.send("No score given yet, can't stat the void yet")
@@ -168,7 +168,7 @@ class ScoreTracker(commands.Cog):
     @commands.command()
     @commands.check(is_tracker_user)
     async def score(self, ctx, score: int):
-        """ .score x or .score -x: Add/remove score
+        """ [score]/-[score]: Add/remove score
         """
         if not self.is_in_range(score):
             return await ctx.send("It's not a valid score!" \
@@ -189,7 +189,7 @@ class ScoreTracker(commands.Cog):
     @commands.command()
     @commands.check(is_tracker_user)
     async def fix(self, ctx, score: int):
-        """ fix [score]: Used to fix the latest score entered
+        """ [score]: Used to fix the latest score entered
         Available during SCORE_TRACKER_CORRECTION_TIME minutes
         """
         if len(self.history) <= 0:
