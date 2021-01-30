@@ -1,4 +1,5 @@
 from .auto_role import AutoRole
+from .etonmban import EtOnMBan
 from .feature_request import FeatureRequest
 from .kick_malabar import KickMalabar
 from .kick_paglops import KickPaglops
