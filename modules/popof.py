@@ -44,7 +44,7 @@ class Popof(commands.Cog):
         await channel.send("Coucou tu veux voir ma glace ?", embed=embed)
 
 
-    @popof.error()
+    @popof_pick.error
     async def error_handler(self, ctx, error):
         if isinstance(error, commands.CheckFailure):
             return
