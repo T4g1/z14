@@ -171,6 +171,10 @@ class ScoreTracker(commands.Cog):
         elif score == "stats":
             return await self.stats(ctx)
 
+        if ctx.author != self.tracker_user:
+            return await ctx.send("Only {} can use this command!".format(
+                self.tracker_user.mention))
+
         try:
             score = await self.sanitize_score(ctx, score)
         except ValueError:
@@ -191,6 +195,10 @@ class ScoreTracker(commands.Cog):
         """ fix x: Used to fix the latest score entered
         Available during SCORE_TRACKER_CORRECTION_TIME minutes
         """
+        if ctx.author != self.tracker_user:
+            return await ctx.send("Only {} can use this command!".format(
+                self.tracker_user.mention))
+
         if len(self.history) <= 0:
             await ctx.send("I have no score to fix!")
             return
