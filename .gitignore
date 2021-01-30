@@ -1,3 +1,5 @@
 .env
 modules/__pycache__/
 *.dat
+venv/
+.idea/

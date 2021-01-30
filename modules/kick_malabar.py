@@ -4,6 +4,8 @@ import asyncio
 
 from discord.ext import commands
 
+from modules.kick_tracker.malabar_kick_tracker import MalabarKickTracker
+
 
 class KickMalabar(commands.Cog):
     """
@@ -19,6 +21,11 @@ class KickMalabar(commands.Cog):
 
         self.is_currently_muted = False
         self.malabar = None
+
+        self.tracker = MalabarKickTracker()
+
+    def update_mute_time(self, ctx):
+        self.mute_time = int(os.getenv("MALABAR_MUTE_TIME")) + self.tracker.get_level(ctx)
 
 
     def test(self):
@@ -108,10 +115,12 @@ class KickMalabar(commands.Cog):
             print("Trying to mute while already muted...")
 
         else:
+            self.update_mute_time(ctx)
             self.is_currently_muted = True
             await self.update_mute()
 
-            await ctx.send("{} TAGUEULE".format(self.malabar.mention))
+            await ctx.send("{} TAGUEULE (for {} seconds)".format(self.malabar.mention, self.mute_time))
+            await self.tracker.inc(ctx)
 
             self.history.append(datetime.datetime.utcnow())
             print("km invoked {} times during the last {} hours".format(
