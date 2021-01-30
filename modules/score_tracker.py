@@ -185,6 +185,8 @@ class ScoreTracker(commands.Cog):
         else:
             await ctx.send("It's bad {}!".format(self.tracker_target.mention))
 
+        await self.bot.publish(ctx, "score_tracker.scored", score)
+
 
     @commands.command()
     @commands.check(is_tracker_user)
@@ -221,6 +223,9 @@ class ScoreTracker(commands.Cog):
         if isinstance(error, commands.MissingRequiredArgument):
             await ctx.send("The following argument is missing: {}".format(
                 error.param))
+
+        elif isinstance(error, commands.CheckFailure):
+            await ctx.send("You cannot use that command!")
 
         elif isinstance(error, commands.BadArgument):
             await ctx.send("The score need to be an integer")

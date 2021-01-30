@@ -37,11 +37,12 @@ python3 z14.py
 * .kt - Will say "Dans tes rêves @[user]"
 * .o - Shows you what to do with your opinion
 * .fr [title] [description] - Will add a feature request into z14's repository
-* .ban - Plays the "Et on m'ban" sample
 * .sstats - Stats on score tracking
 * .savg - Average of score tracking
 * .score [score]/-[score] - Add the given score
 * .fix [score]/-[score] - Remove latest score
+* .ban - Plays the "Et on m'ban" sample
+* .drum - Play the legendary ba dum tss sound effect
 
 ## details
 
@@ -56,6 +57,9 @@ TOKEN=ifapme
 ### Auto role
 
 New users added to the server will get the role defined in AUTO_ROLE
+
+At all time, bot maker sure that:
+* All users have at least the default role assigned to them
 
 #### Config
 
@@ -74,13 +78,13 @@ trolls the user thats all)
 
 ### Self assigned roles
 
-User can self assign pre-defined roles. They are defined in the env variable
-ROLE_EMOJIS as a list of mapping emoji name to role formated as follows:
-```
-amongus,Among Us;csgo,Counter-Strike Global Offensive
-```
+User can self assign pre-defined roles.
 
-The ID of the message users have to react to is given by ROLE_MESSAGE_ID
+At all time, bot maker sure that:
+* All self-assigned roles are consistent with the emojis on the self 
+assigned role message for every users
+* All emojis not mapped are removed from the message for self-roles
+
 
 #### Config
 
@@ -212,25 +216,109 @@ SCORE_TRACKER_FIX_TIME=15
 * **SCORE_TRACKER_TARGET**: User for whom this command scores
 * **SCORE_TRACKER_FIX_TIME**: Time during which we can fix the latest score command
 
-### Et on m'ban
+### Sound effects
 
-Joins the user that invokes it in vocal and plays the sample
+Joins the user that invokes it in vocal and plays a sound effect
 
-* .ban - Do that sample!
+* .ban - Do the "Et on m'ban" sound effect
+* .drum - Do the "Ba dum tss" sound effect
+
+#### Dependancy
+
+* If the module Score Tracker is loaded, will play a drum effect when T4g1 got
+a bad score
 
 #### Config
 
 ```
-BAN_URL=[ban URL]
+SFX_BAN_URL=[ban URL]
+SFX_DRUM_URL=[drum URL]
 ```
 
-* **BAN_URL**: Where is the sample to play located at
+* **SFX_BAN_URL**: Ban sound effect location
+* **SFX_DRUM_URL**: Drum sound effect location
 
-## Resilience
+## Dev
 
-The bot need to make sure the following is always true when re-started 
-after a crash or update:
-* All self-assigned roles are consistent with the emojis on the self 
-assigned role message for every users
-* All emojis not mapped are removed from the message for self-roles
-* All users have at least the default role assigned to them
+To make a succesfull pull request follow this workflow:
+
+* Fork the project
+* Describes the feature in an issue on the z14 repository
+* When approved, create a branch named `z14-333_title` on your fork (with 333 
+being the issue number and title wathever you want related to the issue)
+* Do your dev
+* Create a pull request closing the issue you created 
+
+### z14.py
+
+* Handle modules loading and self testing.
+* Provides basic publish/subscribe design pattern to reduce inter-modules 
+dependancy
+
+#### Adding a module
+
+Add you module into the `modules/` folder and import it in the 
+`__init__.py` file:
+```py
+from .opinion import Opinion
+from .ping import Ping
+from .score_tracker import ScoreTracker
+```
+
+Then in `z14/py`, add your module to the list:
+```py
+self.modules = [
+    modules.Opinion(bot),
+    modules.Ping(bot),
+    modules.ScoreTracker(bot),
+]
+```
+
+#### Testing
+
+Your module should define the following method:
+```py
+def test(self):
+    # Do your testing here
+    assert not os.getenv("SCORE_TRACKER_USER") is None, \
+        "SCORE_TRACKER_USER is not defined"
+
+    try:
+        time = int(os.getenv("SCORE_TRACKER_FIX_TIME"))
+    except Exception as e:
+        self.fail("SCORE_TRACKER_FIX_TIME is not a proper integer")
+```
+
+#### Publish/Subscribe design pattern
+
+**Publishing to a topic**
+
+In your custom module:
+```py
+await self.bot.publish(ctx, "score_tracker.scored", score)
+```
+
+You should give the current commands.Context, the topic name and some 
+value (optionnal)
+
+**Listening to a topic**
+
+In your custom module on_ready:
+```py
+@commands.Cog.listener()
+async def on_ready(self):
+    await self.bot.subscribe("score_tracker.scored", self)
+```
+
+You should give the topic name and who is listening (self)
+
+Then you need to define the callback as follows:
+```py
+async def on_topic_published(self, ctx, topic, value):
+    # Change to put your code here
+    pass
+```
+
+### Modules
+
+* Every module you add should go in that folder

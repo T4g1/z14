@@ -8,8 +8,11 @@ from discord.ext import commands
 
 class Z14(commands.Bot):
     def setup(self):
+        # Topics can be used to listen/publish events across modules, it provides
+        # easy and straightforward decoupling for modules
+        self.listeners = {}
+
         self.modules = [
-            modules.EtOnMBan(bot),
             modules.FeatureRequest(bot),
             modules.KickMalabar(bot),
             modules.KickPaglops(bot),
@@ -17,6 +20,7 @@ class Z14(commands.Bot):
             modules.Opinion(bot),
             modules.Ping(bot),
             modules.ScoreTracker(bot),
+            modules.SoundEffects(bot),
 
             modules.AutoRole(bot),
             modules.SelfRole(bot),
@@ -27,6 +31,23 @@ class Z14(commands.Bot):
 
             if hasattr(module, "test"):
                 module.test()
+
+
+    async def subscribe(self, topic: str, listener: commands.Cog):
+        """ Subscribe to an arbitrary topic
+        """
+        listeners = self.listeners.get(topic, [])
+        listeners.append(listener)
+
+        self.listeners[topic] = listeners
+
+
+    async def publish(self, ctx: commands.Context, topic: str, value=None):
+        """ Publish to an arbitrary topic
+        """
+        for listener in self.listeners.get(topic, []):
+            if hasattr(listener, "on_topic_published"):
+                await listener.on_topic_published(ctx, topic, value)
 
 
     def get_guild(self):
