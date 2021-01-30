@@ -223,6 +223,11 @@ Joins the user that invokes it in vocal and plays a sound effect
 * .ban - Do the "Et on m'ban" sound effect
 * .drum - Do the "Ba dum tss" sound effect
 
+#### Dependancy
+
+* If the module Score Tracker is loaded, will play a drum effect when T4g1 got
+a bad score
+
 #### Config
 
 ```
