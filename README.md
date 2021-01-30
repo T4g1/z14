@@ -238,6 +238,18 @@ SFX_DRUM_URL=[drum URL]
 * **SFX_BAN_URL**: Ban sound effect location
 * **SFX_DRUM_URL**: Drum sound effect location
 
+### Statistics
+
+Provides various stats
+
+#### Config
+
+```
+STATS_DATA_PATH=daily_data.dat
+```
+
+* **STATS_DATA_PATH**: Where to save daily data
+
 ## Dev
 
 To make a succesfull pull request follow this workflow:

@@ -21,6 +21,7 @@ class Z14(commands.Bot):
             modules.Ping(bot),
             modules.ScoreTracker(bot),
             modules.SoundEffects(bot),
+            modules.Statistics(bot),
 
             modules.AutoRole(bot),
             modules.SelfRole(bot),
@@ -96,9 +97,7 @@ class Z14(commands.Bot):
 if __name__ == "__main__":
     load_dotenv()
 
-    intents = discord.Intents.default()
-    intents.reactions = True
-    intents.members = True
+    intents = discord.Intents.all()
 
     bot = Z14(command_prefix='.', intents=intents)
 

@@ -8,3 +8,4 @@ from .ping import Ping
 from .score_tracker import ScoreTracker
 from .self_role import SelfRole
 from .sound_effects import SoundEffects
+from .statistics import Statistics
