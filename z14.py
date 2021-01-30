@@ -14,6 +14,7 @@ class Z14(commands.Bot):
             modules.KickT4g1(bot),
             modules.Opinion(bot),
             modules.Ping(bot),
+            modules.ScoreTracker(bot),
 
             modules.AutoRole(bot),
             modules.SelfRole(bot),
