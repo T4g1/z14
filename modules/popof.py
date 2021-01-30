@@ -42,3 +42,13 @@ class Popof(commands.Cog):
             int(os.getenv("POPOF_CHANNEL")))
 
         await channel.send("Coucou tu veux voir ma glace ?", embed=embed)
+
+
+    @popof.error()
+    async def error_handler(self, ctx, error):
+        if isinstance(error, commands.CheckFailure):
+            return
+
+        else:
+            print("Encountered unexpected error: {} {}".format(error, type(error)))
+
