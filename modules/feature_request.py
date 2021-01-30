@@ -14,18 +14,22 @@ class FeatureRequest(commands.Cog):
 
 
     @commands.command(name="fr")
-    async def feature_request(self, ctx, *args):
-        """ Send a PM to the user telling them its the worst idea ever
+    async def feature_request(self, ctx, title, description):
+        """ [titre] [description]: Send a PM to the user telling them its the worst idea ever
         Usage: .fr "[titre]" "[description]"
         """
-        if len(args) != 2:
-            await ctx.send("usage: .fr 'title' 'description'")
-
-            await ctx.author.send("Abruti")
-            return
-
         await ctx.send(
             "Votre suggestion pour la feature suivante a bien " \
-            "été prise en compte:\n{}\n{}".format(args[0], args[1]))
+            "été prise en compte:\n{}\n{}".format(title, description))
 
         await ctx.author.send("Eh bé tu peux te la mettre ou je pense ta propal")
+
+
+    @feature_request.error
+    async def error_handler(self, ctx, error):
+        if isinstance(error, commands.MissingRequiredArgument):
+            await ctx.send("usage: .fr 'title' 'description'")
+            await ctx.author.send("Abruti")
+
+        else:
+            print("Encountered unexpected error: {} {}".format(error, type(error)))
