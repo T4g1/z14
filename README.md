@@ -37,11 +37,12 @@ python3 z14.py
 * .kt - Will say "Dans tes rêves @[user]"
 * .o - Shows you what to do with your opinion
 * .fr [title] [description] - Will add a feature request into z14's repository
-* .ban - Plays the "Et on m'ban" sample
 * .sstats - Stats on score tracking
 * .savg - Average of score tracking
 * .score [score]/-[score] - Add the given score
 * .fix [score]/-[score] - Remove latest score
+* .ban - Plays the "Et on m'ban" sample
+* .drum - Play the legendary ba dum tss sound effect
 
 ## details
 
@@ -56,6 +57,9 @@ TOKEN=ifapme
 ### Auto role
 
 New users added to the server will get the role defined in AUTO_ROLE
+
+At all time, bot maker sure that:
+* All users have at least the default role assigned to them
 
 #### Config
 
@@ -74,13 +78,13 @@ trolls the user thats all)
 
 ### Self assigned roles
 
-User can self assign pre-defined roles. They are defined in the env variable
-ROLE_EMOJIS as a list of mapping emoji name to role formated as follows:
-```
-amongus,Among Us;csgo,Counter-Strike Global Offensive
-```
+User can self assign pre-defined roles.
 
-The ID of the message users have to react to is given by ROLE_MESSAGE_ID
+At all time, bot maker sure that:
+* All self-assigned roles are consistent with the emojis on the self 
+assigned role message for every users
+* All emojis not mapped are removed from the message for self-roles
+
 
 #### Config
 
@@ -212,25 +216,19 @@ SCORE_TRACKER_FIX_TIME=15
 * **SCORE_TRACKER_TARGET**: User for whom this command scores
 * **SCORE_TRACKER_FIX_TIME**: Time during which we can fix the latest score command
 
-### Et on m'ban
+### Sound effects
 
-Joins the user that invokes it in vocal and plays the sample
+Joins the user that invokes it in vocal and plays a sound effect
 
-* .ban - Do that sample!
+* .ban - Do the "Et on m'ban" sound effect
+* .drum - Do the "Ba dum tss" sound effect
 
 #### Config
 
 ```
-BAN_URL=[ban URL]
+SFX_BAN_URL=[ban URL]
+SFX_DRUM_URL=[drum URL]
 ```
 
-* **BAN_URL**: Where is the sample to play located at
-
-## Resilience
-
-The bot need to make sure the following is always true when re-started 
-after a crash or update:
-* All self-assigned roles are consistent with the emojis on the self 
-assigned role message for every users
-* All emojis not mapped are removed from the message for self-roles
-* All users have at least the default role assigned to them
+* **SFX_BAN_URL**: Ban sound effect location
+* **SFX_DRUM_URL**: Drum sound effect location

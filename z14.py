@@ -9,7 +9,6 @@ from discord.ext import commands
 class Z14(commands.Bot):
     def setup(self):
         self.modules = [
-            modules.EtOnMBan(bot),
             modules.FeatureRequest(bot),
             modules.KickMalabar(bot),
             modules.KickPaglops(bot),
@@ -17,6 +16,7 @@ class Z14(commands.Bot):
             modules.Opinion(bot),
             modules.Ping(bot),
             modules.ScoreTracker(bot),
+            modules.SoundEffects(bot),
 
             modules.AutoRole(bot),
             modules.SelfRole(bot),

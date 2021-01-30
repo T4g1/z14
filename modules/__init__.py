@@ -1,5 +1,4 @@
 from .auto_role import AutoRole
-from .etonmban import EtOnMBan
 from .feature_request import FeatureRequest
 from .kick_malabar import KickMalabar
 from .kick_paglops import KickPaglops
@@ -8,3 +7,4 @@ from .opinion import Opinion
 from .ping import Ping
 from .score_tracker import ScoreTracker
 from .self_role import SelfRole
+from .sound_effects import SoundEffects
