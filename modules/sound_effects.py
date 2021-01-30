@@ -4,6 +4,8 @@ import discord
 
 from discord.ext import commands
 
+DRUM_SCORE_MAX = 5
+
 
 class SoundEffects(commands.Cog):
     """
@@ -12,6 +14,11 @@ class SoundEffects(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.voice_client = None
+
+
+    @commands.Cog.listener()
+    async def on_ready(self):
+        await self.bot.subscribe("score_tracker.scored", self)
 
 
     def test(self):
@@ -25,6 +32,15 @@ class SoundEffects(commands.Cog):
             sample = discord.FFmpegPCMAudio(os.getenv("SFX_DRUM_URL"))
         except:
             self.fail("Some audio sample could not be loaded, check config")
+
+
+    async def on_topic_published(self, ctx, topic, value):
+        """ Module scored_tracker scored some points
+        """
+        if value > DRUM_SCORE_MAX:
+            return
+
+        await self.drum(ctx)
 
 
     @commands.command()
@@ -62,6 +78,6 @@ class SoundEffects(commands.Cog):
         while self.voice_client.is_playing():
             await asyncio.sleep(1)
 
-        await asyncio.sleep(5)
+        await asyncio.sleep(1)
         await self.voice_client.disconnect()
 
