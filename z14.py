@@ -42,7 +42,7 @@ class Z14(commands.Bot):
         self.listeners[topic] = listeners
 
 
-    async def publish(self, ctx: commands.Context, topic: str, value):
+    async def publish(self, ctx: commands.Context, topic: str, value=None):
         """ Publish to an arbitrary topic
         """
         for listener in self.listeners.get(topic, []):

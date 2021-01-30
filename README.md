@@ -237,3 +237,88 @@ SFX_DRUM_URL=[drum URL]
 
 * **SFX_BAN_URL**: Ban sound effect location
 * **SFX_DRUM_URL**: Drum sound effect location
+
+## Dev
+
+To make a succesfull pull request follow this workflow:
+
+* Fork the project
+* Describes the feature in an issue on the z14 repository
+* When approved, create a branch named `z14-333_title` on your fork (with 333 
+being the issue number and title wathever you want related to the issue)
+* Do your dev
+* Create a pull request closing the issue you created 
+
+### z14.py
+
+* Handle modules loading and self testing.
+* Provides basic publish/subscribe design pattern to reduce inter-modules 
+dependancy
+
+#### Adding a module
+
+Add you module into the `modules/` folder and import it in the 
+`__init__.py` file:
+```py
+from .opinion import Opinion
+from .ping import Ping
+from .score_tracker import ScoreTracker
+```
+
+Then in `z14/py`, add your module to the list:
+```py
+self.modules = [
+    modules.Opinion(bot),
+    modules.Ping(bot),
+    modules.ScoreTracker(bot),
+]
+```
+
+#### Testing
+
+Your module should define the following method:
+```py
+def test(self):
+    # Do your testing here
+    assert not os.getenv("SCORE_TRACKER_USER") is None, \
+        "SCORE_TRACKER_USER is not defined"
+
+    try:
+        time = int(os.getenv("SCORE_TRACKER_FIX_TIME"))
+    except Exception as e:
+        self.fail("SCORE_TRACKER_FIX_TIME is not a proper integer")
+```
+
+#### Publish/Subscribe design pattern
+
+**Publishing to a topic**
+
+In your custom module:
+```py
+await self.bot.publish(ctx, "score_tracker.scored", score)
+```
+
+You should give the current commands.Context, the topic name and some 
+value (optionnal)
+
+**Listening to a topic**
+
+In your custom module on_ready:
+```py
+@commands.Cog.listener()
+async def on_ready(self):
+    await self.bot.subscribe("score_tracker.scored", self)
+```
+
+You should give the topic name and who is listening (self)
+
+Then you need to define the callback as follows:
+```py
+async def on_topic_published(self, ctx, topic, value):
+    # Change to put your code here
+    pass
+```
+
+### Modules
+
+* Every module you add should go in that folder
