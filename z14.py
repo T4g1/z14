@@ -11,6 +11,7 @@ class Z14(commands.Bot):
         self.modules = [
             modules.FeatureRequest(bot),
             modules.KickMalabar(bot),
+            modules.KickPaglops(bot),
             modules.KickT4g1(bot),
             modules.Opinion(bot),
             modules.Ping(bot),
