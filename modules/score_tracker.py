@@ -1,7 +1,7 @@
 import os
-import datetime
 import pandas as pd
 
+from datetime import datetime, timedelta
 from discord.ext import commands
 
 
@@ -17,7 +17,7 @@ class ScoreTracker(commands.Cog):
         self.bot = bot
         self.tracker_user = None
         self.history = pd.DataFrame()
-        self.fix_time = datetime.timedelta(
+        self.fix_time = timedelta(
             minutes=int(os.getenv("SCORE_TRACKER_FIX_TIME")))
 
         self.load()
@@ -43,8 +43,10 @@ class ScoreTracker(commands.Cog):
         """
         index = len(self.history)
         data = self.history.to_dict()
-        data["date"][index] = datetime.datetime.utcnow()
+        data["date"][index] = datetime.utcnow()
         data["score"][index] = score
+
+        print("T4g1 got a new score: {}".format(score))
 
         self.history = pd.DataFrame.from_dict(data)
 
@@ -55,6 +57,8 @@ class ScoreTracker(commands.Cog):
         self.history = self.history[-1]
 
         self.persist()
+
+        print("Score tracker entry removed")
 
 
     async def sanitize_score(self, ctx, raw_score):
@@ -77,7 +81,9 @@ class ScoreTracker(commands.Cog):
         """
         try:
             self.history = pd.read_csv(
-                os.getenv("SCORE_TRACKER_PATH", default=DEFAULT_PATH))
+                os.getenv("SCORE_TRACKER_PATH", default=DEFAULT_PATH),
+                 parse_dates=["date"]
+             )
         except FileNotFoundError:
             pass
 
@@ -86,6 +92,8 @@ class ScoreTracker(commands.Cog):
                 "date": [],
                 "score": []
             })
+
+        self.history.set_index("date")
 
         print("Loaded {} tracking data".format(len(self.history)))
 
@@ -100,13 +108,43 @@ class ScoreTracker(commands.Cog):
     async def average(self, ctx):
         """ Show average of score
         """
-        pass
+        avg = self.history["score"].sum() / len(self.history)
+
+        await ctx.send("Average score: {:.2f}".format(avg))
+
+        print("Giving score tracking average")
 
 
     async def stats(self, ctx):
         """ Displays stats
         """
-        pass
+        df = self.history
+
+        first_of_month = datetime.utcnow().date().replace(day=1)
+        first_of_month = datetime.combine(first_of_month, datetime.min.time())
+
+        first_of_year = datetime.utcnow().date().replace(month=1, day=1)
+        first_of_year = datetime.combine(first_of_year, datetime.min.time())
+
+        this_week = df["date"] >= datetime.utcnow() - timedelta(weeks=1)
+        this_month = df["date"] >= first_of_month
+        this_year = df["date"] >= first_of_year
+
+        avg_week = df[this_week]["score"].sum() / len(df[this_week])
+        avg_month = df[this_month]["score"].sum() / len(df[this_month])
+        avg_year = df[this_year]["score"].sum() / len(df[this_year])
+
+        await ctx.send("Average this week: {:.2f} month: {:.2f} year: {:.2f}\n" \
+            "This week: max: {}, min: {}\n" \
+            "This month: max: {}, min: {}\n" \
+            "All time: max: {}, min: {}".format(
+            avg_week, avg_month, avg_year,
+            df[this_week]["score"].max(), df[this_week]["score"].min(),
+            df[this_month]["score"].max(), df[this_month]["score"].min(),
+            df["score"].max(), df["score"].min()
+        ))
+
+        print("Giving score tracking stats")
 
 
     @commands.Cog.listener()
@@ -129,9 +167,9 @@ class ScoreTracker(commands.Cog):
         score stats show statistics
         """
         if score == "avg":
-            return self.average(ctx)
+            return await self.average(ctx)
         elif score == "stats":
-            return self.stats(ctx)
+            return await self.stats(ctx)
 
         try:
             score = await self.sanitize_score(ctx, score)
@@ -157,7 +195,7 @@ class ScoreTracker(commands.Cog):
             await ctx.send("I have no score to fix!")
             return
 
-        if datetime.datetime.utcnow() - self.history.loc[-1]["date"] > self.fix_time:
+        if datetime.utcnow() - self.history.loc[-1]["date"] > self.fix_time:
             await ctx.send("It's too late to go back now, " \
                 "you will have to live with that mistake forever")
             return
