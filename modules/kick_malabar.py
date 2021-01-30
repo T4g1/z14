@@ -18,6 +18,7 @@ class KickMalabar(commands.Cog):
             hours=int(os.getenv("MALABAR_HISTORY_MAX_TIME")))
 
         self.is_currently_muted = False
+        self.malabar = None
 
 
     def test(self):
@@ -63,6 +64,12 @@ class KickMalabar(commands.Cog):
             await self.malabar.edit(mute=self.is_currently_muted)
 
 
+    async def malabar_exist(ctx):
+        """ Checks that Malabar exists on the guild
+        """
+        return not ctx.cog.malabar is None
+
+
     @commands.Cog.listener()
     async def on_voice_state_update(self, member, before, after):
         if not member is self.malabar:
@@ -80,6 +87,7 @@ class KickMalabar(commands.Cog):
 
 
     @commands.command(name="km")
+    @commands.check(malabar_exist)
     async def kick_malabar(self, ctx):
         """ Mute Malabar for some time
         """
@@ -93,13 +101,6 @@ class KickMalabar(commands.Cog):
                     len(self.history), os.getenv("MALABAR_HISTORY_MAX_TIME")
                 )
             )
-
-        elif not self.malabar:
-            await ctx.send("Il est parti du serveur :'(")
-
-            print("Trying to mute {} while he's not there...".format(
-                os.getenv("MALABAR")
-            ))
 
         elif self.is_currently_muted:
             await ctx.send("He is already muted... Slow down...")
@@ -125,3 +126,12 @@ class KickMalabar(commands.Cog):
             print("{} is now free to speak".format(
                 os.getenv("MALABAR")
             ))
+
+
+    @kick_malabar.error
+    async def error_handler(self, ctx, error):
+        if isinstance(error, commands.CheckFailure):
+            await ctx.send("I can't kick him if he's not there...")
+
+        else:
+            print("Encountered unexpected error: {} {}".format(error, type(error)))
