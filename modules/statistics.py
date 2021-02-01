@@ -246,14 +246,54 @@ class Statistics(commands.Cog):
         """
         self.compute_all_uptime()
 
-        await ctx.send("There is {} users on the server!\n" \
+        today = datetime.combine(date.today(), datetime.min.time())
+
+        # TODO: All queries should have one day even when no activity is recorded that day
+
+        # Chat online per day
+        chat_online = self.session.query(
+            DailyResume.date,
+            func.count(DailyResume.user_id).label("chat_count")
+        ).filter(
+            DailyResume.chat_time > 0
+        ).group_by(
+            DailyResume.date
+        )
+
+        # Message sent per day
+        sent_count = self.session.query(
+            DailyResume.date,
+            func.sum(DailyResume.message_count).label("sent_count")
+        ).group_by(
+            DailyResume.date
+        )
+
+        # Online users today
+        chat_online_today = chat_online.filter(
+            DailyResume.date == today).one()[1]
+
+        # Messages sent today
+        sent_count_today = sent_count.filter(
+            DailyResume.date == today).one()[1]
+
+        # Avearage daily online
+        avg_chat_online = self.session.query(
+            func.avg(chat_online.subquery().c.chat_count)
+        ).scalar()
+
+        # Avearage message sent
+        avg_sent_count = self.session.query(
+            func.avg(sent_count.subquery().c.sent_count)
+        ).scalar()
+
+        await ctx.send("```There is {} users on the server!\n" \
             "Users online today: {}\n" \
             "Messages sent today: {}\n" \
-            "Average users online per day: {}\n" \
-            "Average messages per day: {}".format(
+            "Average users online per day: {:.2f}\n" \
+            "Average messages per day: {:.2f}```".format(
                 len(ctx.guild.members),
-                online_today,
-                0,
-                0,
-                0,
+                chat_online_today,
+                sent_count_today,
+                avg_chat_online,
+                avg_sent_count,
         ))
