@@ -1,91 +1,221 @@
 import pandas as pd
 import os
 import discord
+import sqlalchemy
 
 from discord.ext import commands
-from datetime import date
+from datetime import date, datetime, timedelta
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker, aliased
+from sqlalchemy import (
+    Column,
+    Date,
+    Integer,
+    Boolean,
+    String,
+    DateTime,
+    cast,
+    desc,
+    distinct,
+    func,
+    and_
+)
+
+Base = declarative_base()
 
 
-DEFAULT_PATH = "daily_data.dat"
+def daterange(start_date, end_date):
+    """ Yiels every date between two given dates including start date
+    """
+    for n in range(int((end_date - start_date).days) + 1):
+        yield start_date + timedelta(n)
+
+
+class VoiceActivity(Base):
+    """ Tracking: Daily voice chat activity
+    Each row is one user being online from that point in time
+    """
+    __tablename__ = "stats_voice_activity"
+
+    datetime = Column(DateTime, primary_key=True, default=datetime.utcnow)
+    user_id = Column(Integer, primary_key=True)
+
+
+class TextActivity(Base):
+    """ Tracking: Daily chat activity
+    Each row is one user being online from that point in time
+    """
+    __tablename__ = "stats_text_activity"
+
+    datetime = Column(DateTime, primary_key=True, default=datetime.utcnow)
+    user_id = Column(Integer, primary_key=True)
+
+
+class DailyResume(Base):
+    """ Historical: computed from tracking tables
+    """
+    __tablename__ = "stats_daily_resume"
+
+    date = Column(DateTime, primary_key=True, default=date.today)
+    user_id = Column(Integer, primary_key=True)
+
+    message_count = Column(Integer, default=0)
+    chat_time = Column(Integer, default=0)
+    voice_time = Column(Integer, default=0)
+
 
 class Statistics(commands.Cog):
     """
     Provide various statistics
     """
+    # TODO: Catch going offline
+    # TODO: Compute uptimes periodically
     def __init__(self, bot):
         self.bot = bot
+        self.started_at = datetime.utcnow()
 
-        self.today = date.today()
-        self.today_online = []
+        Session = sessionmaker(bind=self.bot.engine)
+        self.session = Session()
 
-        self.daily_data = pd.DataFrame()
-        self.load()
+        Base.metadata.create_all(self.bot.engine)
 
 
     def test(self):
-        assert not os.getenv("STATS_DATA_PATH") is None, \
-            "STATS_DATA_PATH is not defined"
+        pass
 
 
-    def persist(self):
+    def is_text_online(self, member):
+        """ Says if an user is online in text chat
         """
-        Save the following data:
-        - today date
-        - online_today list
-        - today_msg_count
+        return member.status == discord.Status.online
+
+
+    def is_voice_online(self, member):
+        """ Says if an user is online in voice chat
         """
-        self.daily_data.to_csv(
-            os.getenv("STATS_DATA_PATH", default=DEFAULT_PATH), index=False)
-
-
-    def load(self):
-        """ Load saved data
-        """
-        try:
-            self.daily_data = pd.read_csv(
-                os.getenv("STATS_DATA_PATH", default=DEFAULT_PATH),
-                 parse_dates=["date"]
-             )
-        except FileNotFoundError:
-            pass
-
-        if len(self.daily_data) == 0:
-            self.daily_data = pd.DataFrame.from_dict({
-                "date": [],
-                "online_count": [],
-                "message_count": [],
-            })
-
-        self.daily_data = self.daily_data.set_index("date")
-
-        print("Loaded {} daily data".format(len(self.daily_data)))
+        return member.voice and not member.voice.afk
 
 
     @commands.Cog.listener()
     async def on_ready(self):
-        self.on_day_changed()
-
-
-    @commands.command(name="stats")
-    async def statistics(self, ctx):
+        """ Bot goes online
         """
-        Provides somewhat useful statistics to users
+        # Delete all tracking left
+        self.session.query(TextActivity).delete()
+        self.session.query(VoiceActivity).delete()
+
+        self.check_online()
+
+
+    def check_online(self):
+        """ For every online member in text/voice:
+        Adds an entry into TRACKING data
         """
-        await ctx.send("There is {} users on the server!\n" \
-            "Users online today: {}\n" \
-            "Messages sent today: {}".format(
-            len(ctx.guild.members),
-            self.daily_data.loc[date.today()]["online_count"],
-            self.daily_data.loc[date.today()]["message_count"],
-        ))
+        for member in self.bot.get_guild().members:
+            if self.is_text_online(member):
+                self.track_text_activity(member)
+
+            if self.is_voice_online(member):
+                self.track_voice_activity(member)
 
 
-    @commands.Cog.listener()
-    async def on_member_update(self, before, after):
-        # Activity changed
-        if before.status != after.status:
-            if after.status == discord.Status.online:
-                self.on_member_online(after)
+    def compute_all_uptime(self):
+        """ Update uptime data for every users
+        """
+        # Text
+        for row in self.session.query(TextActivity):
+            member = self.bot.get_guild().get_member(row.user_id)
+
+            self.compute_member_uptime(TextActivity, member)
+
+        # Voice
+        for row in self.session.query(VoiceActivity):
+            member = self.bot.get_guild().get_member(row.user_id)
+
+            self.compute_member_uptime(VoiceActivity, member)
+
+
+    def compute_member_uptime(self, model, member):
+        """ Compute uptime for a particular user
+        """
+        tracking = self.session.query(model).filter(
+            model.user_id == member.id
+        ).first()
+
+        if not tracking:
+            # Create tracking information
+            if model == TextActivity:
+                self.track_text_activity(member)
+            else:
+                self.track_voice_activity(member)
+
+            return
+
+        last_online = tracking.datetime
+        for current_date in daterange(tracking.datetime.date(), date.today()):
+            uptime = 0
+
+            # The day processed is today
+            if current_date == date.today():
+                uptime = datetime.utcnow() - last_online
+            # The day processed is a previous day
+            else:
+                uptime = timedelta(days=1) - last_online
+
+            last_online = timedelta(days=0)
+
+            # Update daily resume uptime for that day
+            historical = self.get_daily_default(member, current_date)
+
+            if model == TextActivity:
+                historical.chat_time += uptime.total_seconds()
+            else:
+                historical.voice_time += uptime.total_seconds()
+
+            self.session.commit()
+
+        # Update row time
+        if self.is_text_online(member):
+            tracking.datetime = datetime.utcnow()
+        # Delete row
+        else:
+            self.session.delete(tracking)
+
+        self.session.commit()
+
+
+    def track_text_activity(self, member):
+        """ Record when a user becomes online in text
+        """
+        self.track_activity(TextActivity, member)
+
+
+    def track_voice_activity(self, member):
+        """ Record when a user becomes online in voice
+        """
+        self.track_activity(VoiceActivity, member)
+
+
+    def track_activity(self, model, member):
+        """ Generic activity tracking update
+        """
+        activity = model(
+            datetime=datetime.utcnow(),
+            user_id=member.id
+        )
+        self.session.add(activity)
+        self.session.commit()
+
+
+    def get_daily_default(self, member, date=date.today()):
+        """ Get the member/day historical record
+        """
+        date = datetime.combine(date, datetime.min.time())
+
+        return self.bot.get_or_create(self.session, DailyResume,
+            date=date,
+            user_id=member.id
+        )
 
 
     @commands.Cog.listener()
@@ -93,48 +223,37 @@ class Statistics(commands.Cog):
         """
         When we receive a message
         """
-        if date.today() != self.today:
-            self.on_day_changed()
+        row = self.get_daily_default(message.author)
+        row.message_count += 1
 
-        self.daily_data.loc[date.today()]["message_count"] += 1
+        self.session.commit()
 
 
-    def on_member_online(self, member):
-        """ Record when a user becomes online
+    @commands.Cog.listener()
+    async def on_member_update(self, before, after):
+        # Text activity changed
+        if self.is_text_online(before) != self.is_text_online(after):
+            self.compute_member_uptime(TextActivity, after)
+
+        # Voice activity changed
+        if self.is_voice_online(before) != self.is_voice_online(after):
+            self.compute_member_uptime(VoiceActivity, after)
+
+
+    @commands.command(name="stats")
+    async def statistics(self, ctx):
+        """ Provides somewhat useful statistics to users
         """
-        if date.today() != self.today:
-            self.on_day_changed()
+        self.compute_all_uptime()
 
-        if member.id in self.today_online:
-            return
-
-        self.today_online.append(member.id)
-
-        self.daily_data.loc[date.today()]["online_count"] += 1
-
-
-    def on_day_changed(self):
-        """
-        Detected the day has changed
-        """
-        self.today = date.today()
-        self.today_online = []
-
-        if not date.today() in self.daily_data:
-            index = len(self.daily_data)
-            data = self.daily_data.to_dict()
-            data["online_count"][date.today()] = 0
-            data["message_count"][date.today()] = 0
-
-            self.daily_data = pd.DataFrame.from_dict(data)
-
-        self.check_online()
-
-
-    def check_online(self):
-        """
-        Update list of members online
-        """
-        for member in self.bot.get_guild().members:
-            if member.status == discord.Status.online:
-                self.on_member_online(member)
+        await ctx.send("There is {} users on the server!\n" \
+            "Users online today: {}\n" \
+            "Messages sent today: {}\n" \
+            "Average users online per day: {}\n" \
+            "Average messages per day: {}".format(
+                len(ctx.guild.members),
+                online_today,
+                0,
+                0,
+                0,
+        ))

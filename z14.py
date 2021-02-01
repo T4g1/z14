@@ -4,6 +4,8 @@ import modules
 
 from dotenv import load_dotenv
 from discord.ext import commands
+from sqlalchemy import create_engine
+from sqlalchemy.ext.declarative import declarative_base
 
 
 class Z14(commands.Bot):
@@ -11,6 +13,11 @@ class Z14(commands.Bot):
         # Topics can be used to listen/publish events across modules, it provides
         # easy and straightforward decoupling for modules
         self.listeners = {}
+
+        self.engine = create_engine(
+            os.getenv("DB_PATH", default="sqlite:///data.db"))
+
+        self.Base = declarative_base()
 
         self.modules = [
             modules.FeatureRequest(bot),
@@ -26,6 +33,8 @@ class Z14(commands.Bot):
             modules.AutoRole(bot),
             modules.SelfRole(bot),
         ]
+
+        self.Base.metadata.create_all(self.engine)
 
         for module in self.modules:
             self.add_cog(module)
@@ -92,6 +101,19 @@ class Z14(commands.Bot):
         channel = self.get_guild().get_channel(channel_id)
         message = await channel.fetch_message(message_id)
         await message.remove_reaction(emoji, member)
+
+
+    def get_or_create(self, session, model, **kwargs):
+        """ Get data from a model and create it if it does not exist
+        """
+        instance = session.query(model).filter_by(**kwargs).first()
+        if instance:
+            return instance
+        else:
+            instance = model(**kwargs)
+            session.add(instance)
+            session.commit()
+            return instance
 
 
 if __name__ == "__main__":
