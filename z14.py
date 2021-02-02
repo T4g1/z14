@@ -100,7 +100,7 @@ if __name__ == "__main__":
     intents.reactions = True
     intents.members = True
 
-    bot = Z14(command_prefix='!', intents=intents)
+    bot = Z14(command_prefix='.', intents=intents)
 
     bot.setup()
 
