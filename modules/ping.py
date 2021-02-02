@@ -1,6 +1,4 @@
 from discord.ext import commands
-from cogwatch import watch
-
 
 class Ping(commands.Cog):
     """
