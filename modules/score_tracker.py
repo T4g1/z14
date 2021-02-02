@@ -1,4 +1,5 @@
 import os
+import logging
 import pandas as pd
 
 from datetime import datetime, timedelta
@@ -48,7 +49,7 @@ class ScoreTracker(commands.Cog):
         data["date"][index] = datetime.utcnow()
         data["score"][index] = score
 
-        print("T4g1 got a new score: {}".format(score))
+        logging.info("T4g1 got a new score: {}".format(score))
 
         self.history = pd.DataFrame.from_dict(data)
 
@@ -60,7 +61,7 @@ class ScoreTracker(commands.Cog):
 
         self.persist()
 
-        print("Score tracker entry removed")
+        logging.info("Score tracker entry removed")
 
 
     def load(self):
@@ -82,7 +83,7 @@ class ScoreTracker(commands.Cog):
 
         self.history.set_index("date")
 
-        print("Loaded {} tracking data".format(len(self.history)))
+        logging.info("Loaded {} tracking data".format(len(self.history)))
 
 
     def persist(self):
@@ -126,7 +127,7 @@ class ScoreTracker(commands.Cog):
 
         await ctx.send("Average score: {:.2f}".format(avg))
 
-        print("Giving score tracking average")
+        logging.info("Giving score tracking average")
 
 
     @commands.command(name="sstats")
@@ -162,7 +163,7 @@ class ScoreTracker(commands.Cog):
             df["score"].max(), df["score"].min()
         ))
 
-        print("Giving score tracking stats")
+        logging.info("Giving score tracking stats")
 
 
     @commands.command()
@@ -231,7 +232,7 @@ class ScoreTracker(commands.Cog):
             await ctx.send("The score need to be an integer")
 
         else:
-            print("Encountered unexpected error: {} {}".format(error, type(error)))
+            logging.info("Encountered unexpected error: {} {}".format(error, type(error)))
 
 
 def setup(bot):
@@ -239,4 +240,4 @@ def setup(bot):
 
 
 def teardown(bot):
-    print('Reloading modules.score_tracker')
+    logging.info('Reloading modules.score_tracker')

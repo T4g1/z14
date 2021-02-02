@@ -1,4 +1,5 @@
 import os
+import logging
 
 from discord.ext import commands
 
@@ -28,4 +29,4 @@ def setup(bot):
 
 
 def teardown(bot):
-    print('Reloading modules.kick_t4g1')
+    logging.info('Reloading modules.kick_t4g1')

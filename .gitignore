@@ -1,3 +1,4 @@
 .env
 modules/__pycache__/
 *.dat
+logging.log

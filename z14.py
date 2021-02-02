@@ -1,3 +1,6 @@
+import logging
+import sys
+
 import discord
 import os
 
@@ -8,6 +11,14 @@ from discord.ext import commands
 
 class Z14(commands.Bot):
     def setup(self):
+        watch_log = logging.getLogger('cogwatch')
+        file_handler = logging.FileHandler('logging.log')
+        watch_log.setLevel(logging.INFO)
+        watch_handler = logging.StreamHandler(sys.stdout)
+        watch_handler.setFormatter(logging.Formatter('[%(name)s] %(message)s'))
+        watch_log.addHandler(watch_handler)
+        watch_log.addHandler(file_handler)
+
         # Topics can be used to listen/publish events across modules, it provides
         # easy and straightforward decoupling for modules
         self.listeners = {}
@@ -69,17 +80,17 @@ class Z14(commands.Bot):
         """
         self.test()
 
-        print("z14 is ready")
+        logging.info("z14 is ready")
 
 
     async def give_role(self, member, role):
-        print("Giving role {} to {}".format(
+        logging.info("Giving role {} to {}".format(
             role.name, member.name.encode("ascii", "ignore")))
         await member.add_roles(role)
 
 
     async def remove_role(self, member, role):
-        print("Removing role {} from {}".format(
+        logging.info("Removing role {} from {}".format(
             role.name, member.name.encode("ascii", "ignore")))
         await member.remove_roles(role)
 

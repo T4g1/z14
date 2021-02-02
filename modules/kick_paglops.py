@@ -1,5 +1,6 @@
 import os
 import discord
+import logging
 
 from discord.ext import commands
 
@@ -49,4 +50,4 @@ def setup(bot):
 
 
 def teardown(bot):
-    print('Reloading modules.kick_paglops')
+    logging.info('Reloading modules.kick_paglops')

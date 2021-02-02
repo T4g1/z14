@@ -1,3 +1,5 @@
+import logging
+
 from discord.ext import commands
 
 class Ping(commands.Cog):
@@ -19,4 +21,4 @@ def setup(bot):
 
 
 def teardown(bot):
-    print('Reloading modules.ping')
+    logging.info('Reloading modules.ping')

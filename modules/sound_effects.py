@@ -1,4 +1,5 @@
 import os
+import logging
 import asyncio
 import discord
 
@@ -87,4 +88,4 @@ def setup(bot):
 
 
 def teardown(bot):
-    print('Reloading modules.sound_effects')
+    logging.info('Reloading modules.sound_effects')
