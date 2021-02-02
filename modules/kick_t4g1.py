@@ -28,4 +28,4 @@ def setup(bot):
 
 
 def teardown(bot):
-    print('Reloading {}'.format('modules.kick_t4g1'))
+    print('Reloading modules.kick_t4g1')

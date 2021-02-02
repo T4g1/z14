@@ -239,4 +239,4 @@ def setup(bot):
 
 
 def teardown(bot):
-    print('Reloading {}'.format('modules.score_tracker'))
+    print('Reloading modules.score_tracker')

@@ -87,4 +87,4 @@ def setup(bot):
 
 
 def teardown(bot):
-    print('Reloading {}'.format('modules.sound_effects'))
+    print('Reloading modules.sound_effects')

@@ -19,4 +19,4 @@ def setup(bot):
 
 
 def teardown(bot):
-    print('Reloading {}'.format('modules.ping'))
+    print('Reloading modules.ping')

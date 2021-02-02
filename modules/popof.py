@@ -58,4 +58,4 @@ def setup(bot):
 
 
 def teardown(bot):
-    print('Reloading {}'.format('modules.popof'))
+    print('Reloading modules.popof')

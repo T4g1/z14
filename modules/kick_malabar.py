@@ -142,4 +142,4 @@ def setup(bot):
 
 
 def teardown(bot):
-    print('Reloading {}'.format('modules.kick_malabar'))
+    print('Reloading modules.kick_malabar')

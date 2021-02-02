@@ -50,4 +50,4 @@ def setup(bot):
 
 
 def teardown(bot):
-    print('Reloading {}'.format('modules.auto_role'))
+    print('Reloading modules.auto_role')

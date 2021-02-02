@@ -174,4 +174,4 @@ def setup(bot):
 
 
 def teardown(bot):
-    print('Reloading {}'.format('modules.self_role'))
+    print('Reloading modules.self_role')
