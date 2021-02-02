@@ -135,3 +135,11 @@ class KickMalabar(commands.Cog):
 
         else:
             print("Encountered unexpected error: {} {}".format(error, type(error)))
+
+
+def setup(bot):
+    bot.add_cog(KickMalabar(bot))
+
+
+def teardown(bot):
+    print('Reloading {}'.format('modules.kick_malabar'))

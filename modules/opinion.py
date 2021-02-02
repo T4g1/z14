@@ -26,3 +26,11 @@ class Opinion(commands.Cog):
         embed.set_image(url=self.opinion_url)
 
         await ctx.send(embed=embed)
+
+
+def setup(bot):
+    bot.add_cog(Opinion(bot))
+
+
+def teardown(bot):
+    print('Reloading {}'.format('modules.opinion'))

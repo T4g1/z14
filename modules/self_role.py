@@ -169,3 +169,9 @@ class SelfRole(commands.Cog):
         await self.process_reaction(payload, remove=True)
 
 
+def setup(bot):
+    bot.add_cog(SelfRole(bot))
+
+
+def teardown(bot):
+    print('Reloading {}'.format('modules.self_role'))

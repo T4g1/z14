@@ -43,3 +43,11 @@ class AutoRole(commands.Cog):
         """ Gives new member a pre-defined role
         """
         await self.bot.give_role(member, self.role)
+
+
+def setup(bot):
+    bot.add_cog(AutoRole(bot))
+
+
+def teardown(bot):
+    print('Reloading {}'.format('modules.auto_role'))

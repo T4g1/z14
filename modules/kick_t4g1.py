@@ -21,3 +21,11 @@ class KickT4g1(commands.Cog):
         """
         await ctx.send("Dans tes rêves {}".format(ctx.author.mention))
         await ctx.author.send("*Fear the wrath of T4g1*")
+
+
+def setup(bot):
+    bot.add_cog(KickT4g1(bot))
+
+
+def teardown(bot):
+    print('Reloading {}'.format('modules.kick_t4g1'))

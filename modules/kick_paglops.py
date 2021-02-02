@@ -42,3 +42,11 @@ class KickPaglops(commands.Cog):
         embed.set_image(url=self.paglops_url)
 
         await ctx.send("Coucou {}".format(self.paglops.mention), embed=embed)
+
+
+def setup(bot):
+    bot.add_cog(KickPaglops(bot))
+
+
+def teardown(bot):
+    print('Reloading {}'.format('modules.kick_paglops'))

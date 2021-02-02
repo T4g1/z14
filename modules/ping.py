@@ -1,4 +1,5 @@
 from discord.ext import commands
+from cogwatch import watch
 
 
 class Ping(commands.Cog):
@@ -8,9 +9,16 @@ class Ping(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-
     @commands.command()
     async def ping(self, ctx):
         """ Reply pong to every ping command
         """
         await ctx.send('pong')
+
+
+def setup(bot):
+    bot.add_cog(Ping(bot))
+
+
+def teardown(bot):
+    print('Reloading {}'.format('modules.ping'))

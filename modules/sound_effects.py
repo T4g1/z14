@@ -81,3 +81,10 @@ class SoundEffects(commands.Cog):
         await asyncio.sleep(1)
         await self.voice_client.disconnect()
 
+
+def setup(bot):
+    bot.add_cog(SoundEffects(bot))
+
+
+def teardown(bot):
+    print('Reloading {}'.format('modules.sound_effects'))
