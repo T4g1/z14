@@ -24,10 +24,16 @@ from sqlalchemy import (
 Base = declarative_base()
 
 
+def daycount(start_date, end_date):
+    """ Number of days between two dates
+    """
+    return int((end_date - start_date).days) + 1
+
+
 def daterange(start_date, end_date):
     """ Yiels every date between two given dates including start date
     """
-    for n in range(int((end_date - start_date).days) + 1):
+    for n in range(daycount(start_date, end_date)):
         yield start_date + timedelta(n)
 
 
@@ -90,10 +96,10 @@ class Statistics(commands.Cog):
         return member.status == discord.Status.online
 
 
-    def is_voice_online(self, member):
+    def is_voice_online(self, voice):
         """ Says if an user is online in voice chat
         """
-        return member.voice and not member.voice.afk
+        return voice and voice.channel and not voice.afk
 
 
     @commands.Cog.listener()
@@ -115,7 +121,7 @@ class Statistics(commands.Cog):
             if self.is_text_online(member):
                 self.track_text_activity(member)
 
-            if self.is_voice_online(member):
+            if self.is_voice_online(member.voice):
                 self.track_voice_activity(member)
 
 
@@ -235,9 +241,12 @@ class Statistics(commands.Cog):
         if self.is_text_online(before) != self.is_text_online(after):
             self.compute_member_uptime(TextActivity, after)
 
+
+    @commands.Cog.listener()
+    async def on_voice_state_update(self, member, before, after):
         # Voice activity changed
         if self.is_voice_online(before) != self.is_voice_online(after):
-            self.compute_member_uptime(VoiceActivity, after)
+            self.compute_member_uptime(VoiceActivity, member)
 
 
     @commands.command(name="stats")
@@ -248,7 +257,7 @@ class Statistics(commands.Cog):
 
         today = datetime.combine(date.today(), datetime.min.time())
 
-        # TODO: All queries should have one day even when no activity is recorded that day
+        month = today.replace(day=1)
 
         # Chat online per day
         chat_online = self.session.query(
@@ -258,6 +267,8 @@ class Statistics(commands.Cog):
             DailyResume.chat_time > 0
         ).group_by(
             DailyResume.date
+        ).order_by(
+            DailyResume.date.asc()
         )
 
         # Message sent per day
@@ -266,6 +277,8 @@ class Statistics(commands.Cog):
             func.sum(DailyResume.message_count).label("sent_count")
         ).group_by(
             DailyResume.date
+        ).order_by(
+            DailyResume.date.asc()
         )
 
         # Online users today
@@ -277,23 +290,89 @@ class Statistics(commands.Cog):
             DailyResume.date == today).one()[1]
 
         # Avearage daily online
-        avg_chat_online = self.session.query(
-            func.avg(chat_online.subquery().c.chat_count)
+        sum_chat_online = self.session.query(
+            func.sum(chat_online.subquery().c.chat_count)
         ).scalar()
+        avg_chat_online = sum_chat_online / daycount(chat_online.first()[0], today)
 
         # Avearage message sent
-        avg_sent_count = self.session.query(
-            func.avg(sent_count.subquery().c.sent_count)
+        sum_sent_count = self.session.query(
+            func.sum(sent_count.subquery().c.sent_count)
         ).scalar()
+        avg_sent_count = sum_sent_count / daycount(sent_count.first()[0], today)
+
+        # Avearage message sent this month
+        sum_sent_count_month = self.session.query(
+            func.sum(
+                sent_count.filter(
+                    DailyResume.date >= month
+                ).subquery().c.sent_count
+            )
+        ).scalar()
+        avg_sent_count_month = sum_sent_count_month / daycount(month, today)
+
+        # Total text online per users
+        text_online = self.session.query(
+            DailyResume.user_id,
+            func.sum(DailyResume.chat_time).label("text_online")
+        ).group_by(
+            DailyResume.user_id
+        )
+
+        # Total voice online per users
+        voice_online = self.session.query(
+            DailyResume.user_id,
+            func.sum(DailyResume.voice_time).label("voice_online")
+        ).group_by(
+            DailyResume.user_id
+        )
+
+        # Average time text online
+        avg_text_online = self.session.query(
+            func.avg(text_online.subquery().c.text_online)
+        ).scalar()
+
+        avg_text_online_month = self.session.query(
+            func.avg(text_online.filter(
+                    DailyResume.date >= month
+                ).subquery().c.text_online
+            )
+        ).scalar()
+
+        # Average time voice online
+        avg_voice_online = self.session.query(
+            func.avg(voice_online.subquery().c.voice_online)
+        ).scalar()
+
+        avg_voice_online_month = self.session.query(
+            func.avg(voice_online.filter(
+                    DailyResume.date >= month
+                ).subquery().c.voice_online
+            )
+        ).scalar()
+
+        z14_uptime = datetime.utcnow() - self.started_at
 
         await ctx.send("```There is {} users on the server!\n" \
             "Users online today: {}\n" \
             "Messages sent today: {}\n" \
             "Average users online per day: {:.2f}\n" \
-            "Average messages per day: {:.2f}```".format(
+            "Average messages per day: {:.2f}\n" \
+            "Average messages this month: {:.2f}\n" \
+            "z14 uptime: {}\n" \
+            "Average time connected in text/day: {:.2f}s\n" \
+            "Average time connected in voice/day: {:.2f}s\n" \
+            "Average time connected in text/month: {:.2f}s\n" \
+            "Average time connected in voice/month: {:.2f}s```".format(
                 len(ctx.guild.members),
                 chat_online_today,
                 sent_count_today,
                 avg_chat_online,
                 avg_sent_count,
+                avg_sent_count_month,
+                z14_uptime,
+                avg_text_online,
+                avg_voice_online,
+                avg_text_online_month,
+                avg_voice_online_month,
         ))
