@@ -14,7 +14,6 @@ class Ping(commands.Cog):
     async def ping(self, ctx):
         """ Reply pong to every ping command
         """
-        logging.log('coucou')
         await ctx.send('pong')
 
 
