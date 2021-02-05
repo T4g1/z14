@@ -1,6 +1,6 @@
 import os
 import discord
-import logging
+
 
 from discord.ext import commands
 
@@ -51,7 +51,7 @@ class Popof(commands.Cog):
             return
 
         else:
-            logging.info("Encountered unexpected error: {} {}".format(error, type(error)))
+            print("Encountered unexpected error: {} {}".format(error, type(error)))
 
 
 def setup(bot):

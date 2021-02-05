@@ -1,6 +1,6 @@
 import os
 import discord
-import logging
+
 
 from discord.ext import commands
 
@@ -114,7 +114,7 @@ class SelfRole(commands.Cog):
                     self.bot.get_guild().roles, name=role_name)
 
                 if not role:
-                    logging.info("Role {} not found on that server, ignored".format(
+                    print("Role {} not found on that server, ignored".format(
                         role_name.encode("ascii", "ignore")
                     ))
                     continue
@@ -124,9 +124,9 @@ class SelfRole(commands.Cog):
             raise Exception("ROLE_EMOJIS is badly formatted: \
                 :[EMOJI 1]:,[ROLE 1];:[EMOJI 2]:,[ROLE 2]")
 
-        logging.info("Self role feature has loaded the following roles: ")
+        print("Self role feature has loaded the following roles: ")
         for emoji, role in self.roles_mapping.items():
-            logging.info(":{}: to {}".format(
+            print(":{}: to {}".format(
                 emoji.encode("ascii", "ignore"),
                 role.name.encode("ascii", "ignore")
             ))

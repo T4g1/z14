@@ -1,5 +1,5 @@
 from discord.ext import commands
-import logging
+
 
 
 class FeatureRequest(commands.Cog):
@@ -33,7 +33,7 @@ class FeatureRequest(commands.Cog):
             await ctx.author.send("Abruti")
 
         else:
-            logging.info("Encountered unexpected error: {} {}".format(error, type(error)))
+            print("Encountered unexpected error: {} {}".format(error, type(error)))
 
 
 def setup(bot):

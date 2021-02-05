@@ -1,7 +1,7 @@
 import os
 import datetime
 import asyncio
-import logging
+
 
 from discord.ext import commands
 
@@ -97,7 +97,7 @@ class KickMalabar(commands.Cog):
         if not self.can_call():
             await ctx.send("Slow down there...")
 
-            logging.info("""km threshold of {} times during the last {} \
+            print("""km threshold of {} times during the last {} \
                 hours reached""".format(
                     len(self.history), os.getenv("MALABAR_HISTORY_MAX_TIME")
                 )
@@ -106,7 +106,7 @@ class KickMalabar(commands.Cog):
         elif self.is_currently_muted:
             await ctx.send("He is already muted... Slow down...")
 
-            logging.info("Trying to mute while already muted...")
+            print("Trying to mute while already muted...")
 
         else:
             self.is_currently_muted = True
@@ -115,7 +115,7 @@ class KickMalabar(commands.Cog):
             await ctx.send("{} TAGUEULE".format(self.malabar.mention))
 
             self.history.append(datetime.datetime.utcnow())
-            logging.info("km invoked {} times during the last {} hours".format(
+            print("km invoked {} times during the last {} hours".format(
                 len(self.history), os.getenv("MALABAR_HISTORY_MAX_TIME")
             ))
 
@@ -124,7 +124,7 @@ class KickMalabar(commands.Cog):
             self.is_currently_muted = False
             await self.update_mute()
 
-            logging.info("{} is now free to speak".format(
+            print("{} is now free to speak".format(
                 os.getenv("MALABAR")
             ))
 
@@ -135,7 +135,7 @@ class KickMalabar(commands.Cog):
             await ctx.send("I can't kick him if he's not there...")
 
         else:
-            logging.info("Encountered unexpected error: {} {}".format(error, type(error)))
+            print("Encountered unexpected error: {} {}".format(error, type(error)))
 
 
 def setup(bot):
