@@ -57,6 +57,3 @@ class Popof(commands.Cog):
 def setup(bot):
     bot.add_cog(Popof(bot))
 
-
-def teardown(bot):
-    logging.info('Reloading modules.popof')

@@ -49,6 +49,3 @@ class AutoRole(commands.Cog):
 def setup(bot):
     bot.add_cog(AutoRole(bot))
 
-
-def teardown(bot):
-    logging.info('Reloading modules.auto_role')

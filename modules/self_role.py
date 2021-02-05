@@ -173,6 +173,3 @@ class SelfRole(commands.Cog):
 def setup(bot):
     bot.add_cog(SelfRole(bot))
 
-
-def teardown(bot):
-    logging.info('Reloading modules.self_role')

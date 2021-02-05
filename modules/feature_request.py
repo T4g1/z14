@@ -39,6 +39,3 @@ class FeatureRequest(commands.Cog):
 def setup(bot):
     bot.add_cog(FeatureRequest(bot))
 
-
-def teardown(bot):
-    logging.info('Reloading modules.feature_request')

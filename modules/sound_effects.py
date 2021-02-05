@@ -86,6 +86,3 @@ class SoundEffects(commands.Cog):
 def setup(bot):
     bot.add_cog(SoundEffects(bot))
 
-
-def teardown(bot):
-    logging.info('Reloading modules.sound_effects')

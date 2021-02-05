@@ -32,6 +32,3 @@ class Opinion(commands.Cog):
 def setup(bot):
     bot.add_cog(Opinion(bot))
 
-
-def teardown(bot):
-    logging.info('Reloading modules.opinion')

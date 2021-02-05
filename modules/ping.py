@@ -2,6 +2,7 @@ import logging
 
 from discord.ext import commands
 
+
 class Ping(commands.Cog):
     """
     Simple ping/pong command
@@ -19,6 +20,3 @@ class Ping(commands.Cog):
 def setup(bot):
     bot.add_cog(Ping(bot))
 
-
-def teardown(bot):
-    logging.info('Reloading modules.ping')

@@ -27,6 +27,3 @@ class KickT4g1(commands.Cog):
 def setup(bot):
     bot.add_cog(KickT4g1(bot))
 
-
-def teardown(bot):
-    logging.info('Reloading modules.kick_t4g1')

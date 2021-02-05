@@ -141,6 +141,3 @@ class KickMalabar(commands.Cog):
 def setup(bot):
     bot.add_cog(KickMalabar(bot))
 
-
-def teardown(bot):
-    logging.info('Reloading modules.kick_malabar')
