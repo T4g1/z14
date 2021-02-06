@@ -249,6 +249,103 @@ class Statistics(commands.Cog):
             self.compute_member_uptime(VoiceActivity, member)
 
 
+    @commands.command(name="stop")
+    async def leaderboard(self, ctx):
+        # Message sent per day
+        sent_count = self.session.query(
+            DailyResume.user_id,
+            func.sum(DailyResume.message_count).label("sent_count")
+        ).group_by(
+            DailyResume.user_id
+        ).order_by(
+            func.sum(DailyResume.message_count).desc()
+        ).limit(3)
+
+        top_messages = ""
+        for i in range(3):
+            try:
+                data = sent_count[i]
+                user_name = self.bot.get_guild().get_member(data[0])
+                score = data[1]
+            except:
+                user_name = "/"
+                score = 0
+
+            top_messages += "{} - {}\n".format(score, user_name)
+
+        await ctx.send("```Leaderboard:\n" \
+            "{}\n" \
+            "```".format(
+                top_messages
+        ))
+
+
+    @commands.command(name="suser")
+    async def user_statistics(self, ctx, user_name):
+        member = self.bot.get_guild().get_member_named(user_name)
+
+        if not member:
+            await ctx.send("Cet utilisateur n'a pas pu être trouvé. " \
+                "Respectez le format suivant: " \
+                "username#discriminator (test#0123)")
+            return
+
+        self.compute_all_uptime()
+
+        today = datetime.combine(date.today(), datetime.min.time())
+
+        month = today.replace(day=1)
+
+        # Message sent per day
+        sent_count = self.session.query(
+            DailyResume.date,
+            func.sum(DailyResume.message_count).label("sent_count")
+        ).filter(
+            DailyResume.user_id == member.id
+        ).group_by(
+            DailyResume.date
+        ).order_by(
+            DailyResume.date.asc()
+        )
+
+        # Total messages
+        sum_sent_count = self.session.query(
+            func.sum(sent_count.subquery().c.sent_count)
+        ).scalar()
+
+        if sum_sent_count == None:
+            sum_sent_count = 0
+
+        # Avearage message sent
+        try:
+            avg_sent_count = sum_sent_count / daycount(sent_count.first()[0], today)
+        except TypeError:
+            avg_sent_count = 0
+
+        # Avearage message sent this month
+        try:
+            sum_sent_count_month = self.session.query(
+                func.sum(
+                    sent_count.filter(
+                        DailyResume.date >= month
+                    ).subquery().c.sent_count
+                )
+            ).scalar()
+            avg_sent_count_month = sum_sent_count_month / daycount(month, today)
+        except TypeError:
+            avg_sent_count_month = 0
+
+        await ctx.send("```Stats for user {}:\n" \
+            "Messages sent total: {}\n" \
+            "Average messages per day: {:.2f}\n" \
+            "Average messages this month: {:.2f}```".format(
+                member.name,
+                sum_sent_count,
+                avg_sent_count,
+                avg_sent_count_month,
+        ))
+
+
     @commands.command(name="stats")
     async def statistics(self, ctx):
         """ Provides somewhat useful statistics to users
@@ -353,6 +450,18 @@ class Statistics(commands.Cog):
 
         z14_uptime = datetime.utcnow() - self.started_at
 
+        # Sum of time spent online in voice by all users today
+        sum_voice_online = self.session.query(
+            func.sum(DailyResume.voice_time).label("voice_online")
+        ).filter(
+            DailyResume.date >= today
+        ).scalar()
+
+        # Sum of time spent online in voice by all users all time
+        sum_voice_online_total = self.session.query(
+            func.sum(DailyResume.voice_time).label("voice_online")
+        ).scalar()
+
         await ctx.send("```There is {} users on the server!\n" \
             "Users online today: {}\n" \
             "Messages sent today: {}\n" \
@@ -363,7 +472,9 @@ class Statistics(commands.Cog):
             "Average time connected in text/day: {:.2f}s\n" \
             "Average time connected in voice/day: {:.2f}s\n" \
             "Average time connected in text/month: {:.2f}s\n" \
-            "Average time connected in voice/month: {:.2f}s```".format(
+            "Average time connected in voice/month: {:.2f}s\n" \
+            "Total time in voice today: {:.2f}s\n" \
+            "Total time in voice: {:.2f}s```".format(
                 len(ctx.guild.members),
                 chat_online_today,
                 sent_count_today,
@@ -375,4 +486,16 @@ class Statistics(commands.Cog):
                 avg_voice_online,
                 avg_text_online_month,
                 avg_voice_online_month,
+                sum_voice_online,
+                sum_voice_online_total,
         ))
+
+
+    @user_statistics.error
+    async def error_handler(self, ctx, error):
+        if isinstance(error, commands.MissingRequiredArgument):
+            await ctx.send("The following argument is missing: {}".format(
+                error.param))
+
+        else:
+            print("Encountered unexpected error: {} {}".format(error, type(error)))

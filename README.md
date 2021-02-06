@@ -244,13 +244,9 @@ SFX_DRUM_URL=[drum URL]
 
 Provides various stats
 
-#### Config
-
-```
-STATS_DATA_PATH=daily_data.dat
-```
-
-* **STATS_DATA_PATH**: Where to save daily data
+* .stats - Provides global stats
+* .suser [pseudo] - Provides stats for a specific user
+* .stop - Provides leaderboards
 
 ## Dev
 
