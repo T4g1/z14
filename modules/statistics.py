@@ -249,6 +249,30 @@ class Statistics(commands.Cog):
             self.compute_member_uptime(VoiceActivity, member)
 
 
+    def generate_leaderboard(self, query):
+        """ Given a ordonned query, give a formatted output for a leaderboard
+        """
+        board = ""
+        for i in range(3):
+            try:
+                data = query[i]
+                user_name = self.bot.get_guild().get_member(data[0])
+                score = data[1]
+
+                if score == 0:
+                    continue
+
+            except:
+                continue
+
+            if type(score) is float:
+                board += "{}: {:.2f} - {}\n".format(i+1, score, user_name)
+            else:
+                board += "{}: {} - {}\n".format(i+1, score, user_name)
+
+        return board
+
+
     @commands.command(name="stop")
     async def leaderboard(self, ctx):
         # Message sent per day
@@ -261,22 +285,38 @@ class Statistics(commands.Cog):
             func.sum(DailyResume.message_count).desc()
         ).limit(3)
 
-        top_messages = ""
-        for i in range(3):
-            try:
-                data = sent_count[i]
-                user_name = self.bot.get_guild().get_member(data[0])
-                score = data[1]
-            except:
-                user_name = "/"
-                score = 0
+        # Total text online per users
+        text_online = self.session.query(
+            DailyResume.user_id,
+            func.sum(DailyResume.chat_time).label("text_online")
+        ).group_by(
+            DailyResume.user_id
+        ).order_by(
+            func.sum(DailyResume.chat_time).desc()
+        ).limit(3)
 
-            top_messages += "{} - {}\n".format(score, user_name)
+        # Total voice online per users
+        voice_online = self.session.query(
+            DailyResume.user_id,
+            func.sum(DailyResume.voice_time).label("voice_online")
+        ).group_by(
+            DailyResume.user_id
+        ).order_by(
+            func.sum(DailyResume.voice_time).desc()
+        ).limit(3)
+
+        top_messages = self.generate_leaderboard(sent_count)
+        top_uptime = self.generate_leaderboard(text_online)
+        top_voice = self.generate_leaderboard(voice_online)
 
         await ctx.send("```Leaderboard:\n" \
-            "{}\n" \
+            "Messages sent:\n{}\n" \
+            "Uptime:\n{}\n" \
+            "Voice chat:\n{}\n" \
             "```".format(
-                top_messages
+                top_messages,
+                top_uptime,
+                top_voice,
         ))
 
 
