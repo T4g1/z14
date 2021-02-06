@@ -1,6 +1,7 @@
 import os
 import discord
 
+
 from discord.ext import commands
 
 
@@ -43,3 +44,8 @@ class AutoRole(commands.Cog):
         """ Gives new member a pre-defined role
         """
         await self.bot.give_role(member, self.role)
+
+
+def setup(bot):
+    bot.add_cog(AutoRole(bot))
+

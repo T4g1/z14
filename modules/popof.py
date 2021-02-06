@@ -1,6 +1,7 @@
 import os
 import discord
 
+
 from discord.ext import commands
 
 
@@ -51,4 +52,8 @@ class Popof(commands.Cog):
 
         else:
             print("Encountered unexpected error: {} {}".format(error, type(error)))
+
+
+def setup(bot):
+    bot.add_cog(Popof(bot))
 

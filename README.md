@@ -272,20 +272,18 @@ dependancy
 
 #### Adding a module
 
-Add you module into the `modules/` folder and import it in the 
-`__init__.py` file:
-```py
-from .opinion import Opinion
-from .ping import Ping
-from .score_tracker import ScoreTracker
+Into your module, you have to add this method outside your module class:
+```
+def setup(bot):
+    bot.add_cog(ScoreTracker(bot))
 ```
 
 Then in `z14/py`, add your module to the list:
 ```py
 self.modules = [
-    modules.Opinion(bot),
-    modules.Ping(bot),
-    modules.ScoreTracker(bot),
+    'modules.auto_role',
+    'modules.feature_request',
+    ...
 ]
 ```
 

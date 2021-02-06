@@ -1,6 +1,7 @@
 import os
 import discord
 
+
 from discord.ext import commands
 
 
@@ -42,3 +43,8 @@ class KickPaglops(commands.Cog):
         embed.set_image(url=self.paglops_url)
 
         await ctx.send("Coucou {}".format(self.paglops.mention), embed=embed)
+
+
+def setup(bot):
+    bot.add_cog(KickPaglops(bot))
+

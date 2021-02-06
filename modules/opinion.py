@@ -1,6 +1,7 @@
 import os
 import discord
 
+
 from discord.ext import commands
 
 
@@ -26,3 +27,8 @@ class Opinion(commands.Cog):
         embed.set_image(url=self.opinion_url)
 
         await ctx.send(embed=embed)
+
+
+def setup(bot):
+    bot.add_cog(Opinion(bot))
+
