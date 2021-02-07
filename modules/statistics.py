@@ -102,6 +102,18 @@ class Statistics(commands.Cog):
         return voice and voice.channel and not voice.afk
 
 
+    def sec_to_delta(self, seconds):
+        """ Convert amount of second given to timedelta string for human
+        """
+        return timedelta(seconds=seconds)
+
+
+    def print_time(self, delta):
+        """ Print a timedelta object without milliseconds
+        """
+        return str(delta).split('.')[0]
+
+
     @commands.Cog.listener()
     async def on_ready(self):
         """ Bot goes online
@@ -265,16 +277,24 @@ class Statistics(commands.Cog):
             except:
                 continue
 
+            string_format = "{}: {} - *{}*\n"
+            # For seconds
             if type(score) is float:
-                board += "{}: {:.2f} - {}\n".format(i+1, score, user_name)
+                board += string_format.format(
+                    i+1,
+                    self.print_time(self.sec_to_delta(score)),
+                    user_name
+                )
             else:
-                board += "{}: {} - {}\n".format(i+1, score, user_name)
+                board += string_format.format(i+1, score, user_name)
 
         return board
 
 
     @commands.command(name="stop")
     async def leaderboard(self, ctx):
+        """ Provides a leaderboard on various statistics for the server
+        """
         # Message sent per day
         sent_count = self.session.query(
             DailyResume.user_id,
@@ -309,11 +329,10 @@ class Statistics(commands.Cog):
         top_uptime = self.generate_leaderboard(text_online)
         top_voice = self.generate_leaderboard(voice_online)
 
-        await ctx.send("```Leaderboard:\n" \
-            "Messages sent:\n{}\n" \
-            "Uptime:\n{}\n" \
-            "Voice chat:\n{}\n" \
-            "```".format(
+        await ctx.send(">>> __Leaderboard__\n" \
+            "**Messages sent:**\n{}" \
+            "**Uptime:**\n{}" \
+            "**Voice chat:**\n{}".format(
                 top_messages,
                 top_uptime,
                 top_voice,
@@ -322,6 +341,8 @@ class Statistics(commands.Cog):
 
     @commands.command(name="suser")
     async def user_statistics(self, ctx, user_name):
+        """ Provides statistics about a particular user
+        """
         member = self.bot.get_guild().get_member_named(user_name)
 
         if not member:
@@ -333,120 +354,91 @@ class Statistics(commands.Cog):
         self.compute_all_uptime()
 
         today = datetime.combine(date.today(), datetime.min.time())
-
         month = today.replace(day=1)
 
-        # Message sent per day
-        sent_count = self.session.query(
-            DailyResume.date,
-            func.sum(DailyResume.message_count).label("sent_count")
-        ).filter(
+        message_sent = self.query_message_per_day().filter(
             DailyResume.user_id == member.id
-        ).group_by(
-            DailyResume.date
-        ).order_by(
-            DailyResume.date.asc()
         )
 
         # Total messages
-        sum_sent_count = self.session.query(
-            func.sum(sent_count.subquery().c.sent_count)
+        sum_message_sent = self.session.query(
+            func.sum(message_sent.subquery().c.count)
         ).scalar()
 
-        if sum_sent_count == None:
-            sum_sent_count = 0
+        if sum_message_sent == None:
+            sum_message_sent = 0
 
         # Avearage message sent
         try:
-            avg_sent_count = sum_sent_count / daycount(sent_count.first()[0], today)
+            avg_message_sent = sum_message_sent / daycount(message_sent.first()[0], today)
         except TypeError:
-            avg_sent_count = 0
+            avg_message_sent = 0
 
         # Avearage message sent this month
         try:
-            sum_sent_count_month = self.session.query(
+            sum_message_sent_month = self.session.query(
                 func.sum(
-                    sent_count.filter(
+                    message_sent.filter(
                         DailyResume.date >= month
-                    ).subquery().c.sent_count
+                    ).subquery().c.count
                 )
             ).scalar()
-            avg_sent_count_month = sum_sent_count_month / daycount(month, today)
+            avg_message_sent_month = sum_message_sent_month / daycount(month, today)
         except TypeError:
-            avg_sent_count_month = 0
+            avg_message_sent_month = 0
 
-        await ctx.send("```Stats for user {}:\n" \
-            "Messages sent total: {}\n" \
-            "Average messages per day: {:.2f}\n" \
-            "Average messages this month: {:.2f}```".format(
+        await ctx.send(">>> __Stats for user {}__\n" \
+            "**Messages sent total:** {}\n" \
+            "**Average messages per day:** {:.2f}\n" \
+            "**Average messages this month:** {:.2f}".format(
                 member.name,
-                sum_sent_count,
-                avg_sent_count,
-                avg_sent_count_month,
+                sum_message_sent,
+                avg_message_sent,
+                avg_message_sent_month,
         ))
 
 
     @commands.command(name="stats")
     async def statistics(self, ctx):
-        """ Provides somewhat useful statistics to users
+        """ Provides general statistics about server and bot usage
         """
         self.compute_all_uptime()
 
         today = datetime.combine(date.today(), datetime.min.time())
-
         month = today.replace(day=1)
 
-        # Chat online per day
-        chat_online = self.session.query(
-            DailyResume.date,
-            func.count(DailyResume.user_id).label("chat_count")
-        ).filter(
-            DailyResume.chat_time > 0
-        ).group_by(
-            DailyResume.date
-        ).order_by(
-            DailyResume.date.asc()
-        )
-
-        # Message sent per day
-        sent_count = self.session.query(
-            DailyResume.date,
-            func.sum(DailyResume.message_count).label("sent_count")
-        ).group_by(
-            DailyResume.date
-        ).order_by(
-            DailyResume.date.asc()
-        )
+        online_users = self.query_online_per_day()
+        message_sent = self.query_message_per_day()
 
         # Online users today
-        chat_online_today = chat_online.filter(
+        online_users_today = online_users.filter(
             DailyResume.date == today).one()[1]
 
         # Messages sent today
-        sent_count_today = sent_count.filter(
+        message_sent_today = message_sent.filter(
             DailyResume.date == today).one()[1]
 
         # Avearage daily online
-        sum_chat_online = self.session.query(
-            func.sum(chat_online.subquery().c.chat_count)
+        sum_online_users = self.session.query(
+            func.sum(online_users.subquery().c.count)
         ).scalar()
-        avg_chat_online = sum_chat_online / daycount(chat_online.first()[0], today)
+        avg_online_users = sum_online_users / daycount(online_users.first()[0], today)
 
         # Avearage message sent
-        sum_sent_count = self.session.query(
-            func.sum(sent_count.subquery().c.sent_count)
+        sum_message_sent = self.session.query(
+            func.sum(message_sent.subquery().c.count)
         ).scalar()
-        avg_sent_count = sum_sent_count / daycount(sent_count.first()[0], today)
+        avg_message_sent = sum_message_sent / daycount(message_sent.first()[0], today)
 
         # Avearage message sent this month
-        sum_sent_count_month = self.session.query(
+        sum_message_sent_month = self.session.query(
             func.sum(
-                sent_count.filter(
+                message_sent.filter(
                     DailyResume.date >= month
-                ).subquery().c.sent_count
+                ).subquery().c.count
             )
         ).scalar()
-        avg_sent_count_month = sum_sent_count_month / daycount(month, today)
+        avg_message_sent_month = sum_message_sent_month / daycount(month, today)
 
         # Total text online per users
         text_online = self.session.query(
@@ -492,42 +484,51 @@ class Statistics(commands.Cog):
 
         # Sum of time spent online in voice by all users today
         sum_voice_online = self.session.query(
-            func.sum(DailyResume.voice_time).label("voice_online")
+            func.sum(DailyResume.voice_time)
         ).filter(
             DailyResume.date >= today
         ).scalar()
 
         # Sum of time spent online in voice by all users all time
         sum_voice_online_total = self.session.query(
-            func.sum(DailyResume.voice_time).label("voice_online")
+            func.sum(DailyResume.voice_time)
         ).scalar()
 
-        await ctx.send("```There is {} users on the server!\n" \
-            "Users online today: {}\n" \
-            "Messages sent today: {}\n" \
-            "Average users online per day: {:.2f}\n" \
-            "Average messages per day: {:.2f}\n" \
-            "Average messages this month: {:.2f}\n" \
-            "z14 uptime: {}\n" \
-            "Average time connected in text/day: {:.2f}s\n" \
-            "Average time connected in voice/day: {:.2f}s\n" \
-            "Average time connected in text/month: {:.2f}s\n" \
-            "Average time connected in voice/month: {:.2f}s\n" \
-            "Total time in voice today: {:.2f}s\n" \
-            "Total time in voice: {:.2f}s```".format(
+        await ctx.send(">>> __Statistics__\n" \
+            "**z14 uptime:** {}\n" \
+            "\n" \
+            "**Total users:** {}\n" \
+            "**Users online today:** {}\n" \
+            "**Average users online per day:** {:.2f}\n" \
+            "\n" \
+            "**Messages sent today:** {}\n" \
+            "**Average messages per day:** {:.2f}\n" \
+            "**Average messages this month:** {:.2f}\n" \
+            "\n" \
+            "**Total time in voice today:** {}\n" \
+            "**Total time in voice:** {}\n"
+            "\n" \
+            "**Average time connected in text/day:** {}\n" \
+            "**Average time connected in voice/day:** {}\n" \
+            "**Average time connected in text/month:** {}\n" \
+            "**Average time connected in voice/month:** {}".format(
+                self.print_time(z14_uptime),
+
                 len(ctx.guild.members),
-                chat_online_today,
-                sent_count_today,
-                avg_chat_online,
-                avg_sent_count,
-                avg_sent_count_month,
-                z14_uptime,
-                avg_text_online,
-                avg_voice_online,
-                avg_text_online_month,
-                avg_voice_online_month,
-                sum_voice_online,
-                sum_voice_online_total,
+                online_users_today,
+                avg_online_users,
+
+                message_sent_today,
+                avg_message_sent,
+                avg_message_sent_month,
+
+                self.print_time(self.sec_to_delta(sum_voice_online)),
+                self.print_time(self.sec_to_delta(sum_voice_online_total)),
+
+                self.print_time(self.sec_to_delta(avg_text_online)),
+                self.print_time(self.sec_to_delta(avg_voice_online)),
+                self.print_time(self.sec_to_delta(avg_text_online_month)),
+                self.print_time(self.sec_to_delta(avg_voice_online_month)),
         ))
 
 
@@ -539,3 +540,31 @@ class Statistics(commands.Cog):
 
         else:
             print("Encountered unexpected error: {} {}".format(error, type(error)))
+
+
+    def query_message_per_day(self):
+        """ Gives a query with number of message sent by day
+        """
+        return self.session.query(
+            DailyResume.date,
+            func.sum(DailyResume.message_count).label("count")
+        ).group_by(
+            DailyResume.date
+        ).order_by(
+            DailyResume.date.asc()
+        )
+
+
+    def query_online_per_day(self):
+        """ Gives a query with number of users online per day
+        """
+        return self.session.query(
+            DailyResume.date,
+            func.count(DailyResume.user_id).label("count")
+        ).filter(
+            DailyResume.chat_time > 0
+        ).group_by(
+            DailyResume.date
+        ).order_by(
+            DailyResume.date.asc()
+        )
