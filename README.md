@@ -43,6 +43,7 @@ python3 z14.py
 * .fix [score]/-[score] - Remove latest score
 * .ban - Plays the "Et on m'ban" sample
 * .drum - Play the legendary ba dum tss sound effect
+* .bp - Sends a picture to a specific channel
 
 ## details
 
@@ -248,6 +249,20 @@ Provides various stats
 * .suser [pseudo] - Provides stats for a specific user
 * .stop - Provides leaderboards
 
+### Popof
+
+Sends a picture to a specific channel
+
+#### Config
+
+```
+POPOF_URL=[URL]
+POPOF_CHANNEL=[ID of the chan where it can be used]
+```
+
+* **POPOF_URL**: What image to send
+* **POPOF_CHANNEL**: Where to send the image
+
 ## Dev
 
 To make a succesfull pull request follow this workflow:
@@ -267,20 +282,18 @@ dependancy
 
 #### Adding a module
 
-Add you module into the `modules/` folder and import it in the 
-`__init__.py` file:
-```py
-from .opinion import Opinion
-from .ping import Ping
-from .score_tracker import ScoreTracker
+Into your module, you have to add this method outside your module class:
+```
+def setup(bot):
+    bot.add_cog(ScoreTracker(bot))
 ```
 
 Then in `z14/py`, add your module to the list:
 ```py
 self.modules = [
-    modules.Opinion(bot),
-    modules.Ping(bot),
-    modules.ScoreTracker(bot),
+    'modules.auto_role',
+    'modules.feature_request',
+    ...
 ]
 ```
 

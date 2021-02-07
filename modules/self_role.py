@@ -1,6 +1,7 @@
 import os
 import discord
 
+
 from discord.ext import commands
 
 
@@ -168,4 +169,7 @@ class SelfRole(commands.Cog):
 
         await self.process_reaction(payload, remove=True)
 
+
+def setup(bot):
+    bot.add_cog(SelfRole(bot))
 

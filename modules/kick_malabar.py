@@ -2,6 +2,7 @@ import os
 import datetime
 import asyncio
 
+
 from discord.ext import commands
 
 
@@ -46,7 +47,7 @@ class KickMalabar(commands.Cog):
         self.history.clear()
 
         for when in old_history:
-            if when - datetime.datetime.utcnow() > self.history_max_time:
+            if datetime.datetime.utcnow() - when > self.history_max_time:
                 continue
 
             self.history.append(when)
@@ -135,3 +136,8 @@ class KickMalabar(commands.Cog):
 
         else:
             print("Encountered unexpected error: {} {}".format(error, type(error)))
+
+
+def setup(bot):
+    bot.add_cog(KickMalabar(bot))
+

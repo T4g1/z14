@@ -568,3 +568,7 @@ class Statistics(commands.Cog):
         ).order_by(
             DailyResume.date.asc()
         )
+
+
+def setup(bot):
+    bot.add_cog(Statistics(bot))

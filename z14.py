@@ -1,7 +1,7 @@
 import discord
 import os
-import modules
 
+from cogwatch import watch
 from dotenv import load_dotenv
 from discord.ext import commands
 from sqlalchemy import create_engine
@@ -20,24 +20,24 @@ class Z14(commands.Bot):
         self.Base = declarative_base()
 
         self.modules = [
-            modules.FeatureRequest(bot),
-            modules.KickMalabar(bot),
-            modules.KickPaglops(bot),
-            modules.KickT4g1(bot),
-            modules.Opinion(bot),
-            modules.Ping(bot),
-            modules.ScoreTracker(bot),
-            modules.SoundEffects(bot),
-            modules.Statistics(bot),
-
-            modules.AutoRole(bot),
-            modules.SelfRole(bot),
+            'modules.auto_role',
+            'modules.feature_request',
+            'modules.kick_malabar',
+            'modules.ping',
+            'modules.kick_paglops',
+            'modules.kick_t4g1',
+            'modules.opinion',
+            'modules.popof',
+            'modules.score_tracker',
+            'modules.sound_effects',
+            'modules.statistics',
+            'modules.self_role',
         ]
 
         self.Base.metadata.create_all(self.engine)
 
         for module in self.modules:
-            self.add_cog(module)
+            self.load_extension(module)
 
             if hasattr(module, "test"):
                 module.test()
@@ -73,7 +73,7 @@ class Z14(commands.Bot):
         assert not os.getenv("TOKEN") is None, \
             "TOKEN not found: Make sur you have a .env at z14 root"
 
-
+    @watch(path='modules')
     async def on_ready(self):
         """ Called when z14 is connected and ready to receive events
         """

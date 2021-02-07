@@ -1,4 +1,5 @@
 import os
+
 import asyncio
 import discord
 
@@ -80,4 +81,8 @@ class SoundEffects(commands.Cog):
 
         await asyncio.sleep(1)
         await self.voice_client.disconnect()
+
+
+def setup(bot):
+    bot.add_cog(SoundEffects(bot))
 

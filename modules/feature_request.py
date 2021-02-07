@@ -1,6 +1,7 @@
 from discord.ext import commands
 
 
+
 class FeatureRequest(commands.Cog):
     """
     Will show Paglops what she can do with her shitty feature requests
@@ -33,3 +34,8 @@ class FeatureRequest(commands.Cog):
 
         else:
             print("Encountered unexpected error: {} {}".format(error, type(error)))
+
+
+def setup(bot):
+    bot.add_cog(FeatureRequest(bot))
+
