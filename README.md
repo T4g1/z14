@@ -72,6 +72,21 @@ AUTO_ROLE=Joueur
 
 * **AUTO_ROLE**: Name of the role to be added by default
 
+### Hydrohomies
+
+Every X hours, will send a reminder in a pre-configured channel for everyone to
+drink water.
+
+#### Config
+
+```
+HYDRO_TIMER=7200
+HYDRO_CHANNEL=[CHANNEL ID]
+```
+
+* **HYDRO_TIMER**: Time in second between reminders
+* **HYDRO_CHANNEL**: Channel ID where to send reminders to
+
 ### Feature Request
 
 Will send the feature request in the Git repository as an issue (just kidding, 
