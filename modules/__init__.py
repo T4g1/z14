@@ -1,5 +1,6 @@
 from .auto_role import AutoRole
 from .feature_request import FeatureRequest
+from .hydrohomies import HydroHomies
 from .kick_malabar import KickMalabar
 from .kick_paglops import KickPaglops
 from .kick_t4g1 import KickT4g1
