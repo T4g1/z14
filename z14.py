@@ -4,6 +4,8 @@ import os
 from cogwatch import watch
 from dotenv import load_dotenv
 from discord.ext import commands
+from sqlalchemy import create_engine
+from sqlalchemy.ext.declarative import declarative_base
 
 
 class Z14(commands.Bot):
@@ -11,6 +13,11 @@ class Z14(commands.Bot):
         # Topics can be used to listen/publish events across modules, it provides
         # easy and straightforward decoupling for modules
         self.listeners = {}
+
+        self.engine = create_engine(
+            os.getenv("DB_PATH", default="sqlite:///data.db"))
+
+        self.Base = declarative_base()
 
         self.modules = [
             'modules.auto_role',
@@ -23,8 +30,11 @@ class Z14(commands.Bot):
             'modules.popof',
             'modules.score_tracker',
             'modules.sound_effects',
+            'modules.statistics',
             'modules.self_role',
         ]
+
+        self.Base.metadata.create_all(self.engine)
 
         for module in self.modules:
             self.load_extension(module)
@@ -93,12 +103,23 @@ class Z14(commands.Bot):
         await message.remove_reaction(emoji, member)
 
 
+    def get_or_create(self, session, model, **kwargs):
+        """ Get data from a model and create it if it does not exist
+        """
+        instance = session.query(model).filter_by(**kwargs).first()
+        if instance:
+            return instance
+        else:
+            instance = model(**kwargs)
+            session.add(instance)
+            session.commit()
+            return instance
+
+
 if __name__ == "__main__":
     load_dotenv()
 
-    intents = discord.Intents.default()
-    intents.reactions = True
-    intents.members = True
+    intents = discord.Intents.all()
 
     bot = Z14(command_prefix='.', intents=intents)
 

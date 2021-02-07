@@ -47,13 +47,15 @@ python3 z14.py
 
 ## details
 
-You need to configure the bot token in TOKEN
+You need the following configuration in `.env`:
 
 ```
 TOKEN=ifapme
+DB_PATH=sqlite:///[PATH]
 ```
 
 * **TOKEN**: Secret TOKEN of the bot
+* **DB_PATH**: Where will the DB be stored
 
 ### Auto role
 
@@ -238,6 +240,14 @@ SFX_DRUM_URL=[drum URL]
 
 * **SFX_BAN_URL**: Ban sound effect location
 * **SFX_DRUM_URL**: Drum sound effect location
+
+### Statistics
+
+Provides various stats
+
+* .stats - Provides global stats
+* .suser [pseudo] - Provides stats for a specific user
+* .stop - Provides leaderboards
 
 ### Popof
 
