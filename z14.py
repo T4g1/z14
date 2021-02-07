@@ -22,16 +22,17 @@ class Z14(commands.Bot):
         self.modules = [
             'modules.auto_role',
             'modules.feature_request',
+            'modules.hydrohomies',
             'modules.kick_malabar',
-            'modules.ping',
             'modules.kick_paglops',
             'modules.kick_t4g1',
             'modules.opinion',
+            'modules.ping',
             'modules.popof',
             'modules.score_tracker',
+            'modules.self_role',
             'modules.sound_effects',
             'modules.statistics',
-            'modules.self_role',
         ]
 
         self.Base.metadata.create_all(self.engine)
