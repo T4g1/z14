@@ -295,6 +295,8 @@ class Statistics(commands.Cog):
     async def leaderboard(self, ctx):
         """ Provides a leaderboard on various statistics for the server
         """
+        self.compute_all_uptime()
+
         # Message sent per day
         sent_count = self.session.query(
             DailyResume.user_id,
