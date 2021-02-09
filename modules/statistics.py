@@ -24,6 +24,12 @@ from sqlalchemy import (
 Base = declarative_base()
 
 
+def date_to_datetime(date):
+    """ Gives the datetime from the date by adding a zero time
+    """
+    return datetime.combine(date, datetime.min.time())
+
+
 def daycount(start_date, end_date):
     """ Number of days between two dates
     """
@@ -125,6 +131,18 @@ class Statistics(commands.Cog):
         self.check_online()
 
 
+    def clear_member(self, id):
+        """ In case a user leaves the guild, we remove tracking data for him
+        """
+        self.session.query(TextActivity).filter(
+            TextActivity.user_id == id
+        ).delete()
+
+        self.session.query(VoiceActivity).filter(
+            VoiceActivity.user_id == id
+        ).delete()
+
+
     def check_online(self):
         """ For every online member in text/voice:
         Adds an entry into TRACKING data
@@ -144,13 +162,19 @@ class Statistics(commands.Cog):
         for row in self.session.query(TextActivity):
             member = self.bot.get_guild().get_member(row.user_id)
 
-            self.compute_member_uptime(TextActivity, member)
+            if member is None:
+                self.clear_member(row.user_id)
+            else:
+                self.compute_member_uptime(TextActivity, member)
 
         # Voice
         for row in self.session.query(VoiceActivity):
             member = self.bot.get_guild().get_member(row.user_id)
 
-            self.compute_member_uptime(VoiceActivity, member)
+            if member is None:
+                self.clear_member(row.user_id)
+            else:
+                self.compute_member_uptime(VoiceActivity, member)
 
 
     def compute_member_uptime(self, model, member):
@@ -173,14 +197,17 @@ class Statistics(commands.Cog):
         for current_date in daterange(tracking.datetime.date(), date.today()):
             uptime = 0
 
+            # Get next day at midnight
+            next_midgnight = date_to_datetime(current_date) + timedelta(days=1)
+
             # The day processed is today
             if current_date == date.today():
                 uptime = datetime.utcnow() - last_online
             # The day processed is a previous day
             else:
-                uptime = timedelta(days=1) - last_online
+                uptime = next_midgnight - last_online
 
-            last_online = timedelta(days=0)
+            last_online = next_midgnight
 
             # Update daily resume uptime for that day
             historical = self.get_daily_default(member, current_date)
@@ -228,7 +255,7 @@ class Statistics(commands.Cog):
     def get_daily_default(self, member, date=date.today()):
         """ Get the member/day historical record
         """
-        date = datetime.combine(date, datetime.min.time())
+        date = date_to_datetime(date)
 
         return self.bot.get_or_create(self.session, DailyResume,
             date=date,
@@ -270,6 +297,9 @@ class Statistics(commands.Cog):
                 data = query[i]
                 user_name = self.bot.get_guild().get_member(data[0])
                 score = data[1]
+
+                if not user_name:
+                    user_name = "(leaver)"
 
                 if score == 0:
                     continue
@@ -355,7 +385,7 @@ class Statistics(commands.Cog):
 
         self.compute_all_uptime()
 
-        today = datetime.combine(date.today(), datetime.min.time())
+        today = date_to_datetime(date.today())
         month = today.replace(day=1)
 
         message_sent = self.query_message_per_day().filter(
@@ -406,7 +436,7 @@ class Statistics(commands.Cog):
         """
         self.compute_all_uptime()
 
-        today = datetime.combine(date.today(), datetime.min.time())
+        today = date_to_datetime(date.today())
         month = today.replace(day=1)
 
         online_users = self.query_online_per_day()
