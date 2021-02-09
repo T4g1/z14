@@ -4,3 +4,4 @@ pandas==1.2.1
 pynacl==1.4.0
 cogwatch==2.0.0
 sqlalchemy==1.3.23
+asyncpraw==7.1.0
