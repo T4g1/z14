@@ -1,5 +1,6 @@
 import discord
 import os
+import asyncpraw
 
 from cogwatch import watch
 from dotenv import load_dotenv
@@ -13,6 +14,18 @@ class Z14(commands.Bot):
         # Topics can be used to listen/publish events across modules, it provides
         # easy and straightforward decoupling for modules
         self.listeners = {}
+
+        self.test()
+
+        try:
+            self.reddit = asyncpraw.Reddit(
+                client_id=os.getenv("REDDIT_CLIENT_ID"),
+                client_secret=os.getenv("REDDIT_CLIENT_SECRET"),
+                user_agent=os.getenv("REDDIT_AGENT")
+            )
+        except Exception as e:
+            print(e)
+            self.reddit = None
 
         self.engine = create_engine(
             os.getenv("DB_PATH", default="sqlite:///data.db"))
@@ -68,17 +81,28 @@ class Z14(commands.Bot):
 
 
     def test(self):
-        assert len(self.guilds) == 1,  \
-            "Connected to too many guilds, we support only one right now"
-
         assert not os.getenv("TOKEN") is None, \
             "TOKEN not found: Make sur you have a .env at z14 root"
+        assert not os.getenv("DB_PATH") is None, \
+            "DB_PATH not found"
+
+        """
+        # Optionnal parameters
+        assert not os.getenv("REDDIT_CLIENT") is None, \
+            "REDDIT_CLIENT not found"
+        assert not os.getenv("REDDIT_SECRET") is None, \
+            "REDDIT_SECRET not found"
+        assert not os.getenv("REDDIT_AGENT") is None, \
+            "REDDIT_AGENT not found"
+        """
+
 
     @watch(path='modules')
     async def on_ready(self):
         """ Called when z14 is connected and ready to receive events
         """
-        self.test()
+        assert len(self.guilds) == 1,  \
+            "Connected to too many guilds, we support only one right now"
 
         print("z14 is ready")
 

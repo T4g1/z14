@@ -47,15 +47,26 @@ python3 z14.py
 
 ## details
 
+You need a Reddit account and an application to get access to the API:
+
+* Create an application here: https://www.reddit.com/prefs/apps
+* See https://github.com/reddit-archive/reddit/wiki/OAuth2-Quick-Start-Example#first-steps for more details
+
 You need the following configuration in `.env`:
 
 ```
 TOKEN=ifapme
 DB_PATH=sqlite:///[PATH]
+REDDIT_CLIENT_ID=[REDDIT CLIENT ID]
+REDDIT_CLIENT_SECRET=[REDDIT CLIENT SECRET]
+REDDIT_AGENT=[REDDIT AGENT]
 ```
 
 * **TOKEN**: Secret TOKEN of the bot
 * **DB_PATH**: Where will the DB be stored
+* **REDDIT_CLIENT_ID**: Optionnal: Auth for reddit
+* **REDDIT_CLIENT_SECRET**: Optionnal: Auth for reddit
+* **REDDIT_AGENT**: Optionnal: Auth for reddit
 
 ### Auto role
 
@@ -77,15 +88,19 @@ AUTO_ROLE=Joueur
 Every X hours, will send a reminder in a pre-configured channel for everyone to
 drink water.
 
+If Reddit API is configured and enabled, will also embed image to the reminder
+
 #### Config
 
 ```
 HYDRO_TIMER=7200
 HYDRO_CHANNEL=[CHANNEL ID]
+HYDRO_SUB=HydroHomies
 ```
 
 * **HYDRO_TIMER**: Time in second between reminders
 * **HYDRO_CHANNEL**: Channel ID where to send reminders to
+* **HYDRO_URL**: Subreddit where to look for embeddable
 
 ### Feature Request
 
