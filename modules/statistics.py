@@ -148,6 +148,9 @@ class Statistics(commands.Cog):
         Adds an entry into TRACKING data
         """
         for member in self.bot.get_guild().members:
+            if member.bot:
+                continue
+
             if self.is_text_online(member):
                 self.track_text_activity(member)
 
@@ -180,6 +183,9 @@ class Statistics(commands.Cog):
     def compute_member_uptime(self, model, member):
         """ Compute uptime for a particular user
         """
+        if member.bot:
+            return
+
         tracking = self.session.query(model).filter(
             model.user_id == member.id
         ).first()
@@ -271,6 +277,9 @@ class Statistics(commands.Cog):
         """
         When we receive a message
         """
+        if message.author.bot:
+            return
+
         row = self.get_daily_default(message.author)
         row.message_count += 1
 
@@ -279,6 +288,9 @@ class Statistics(commands.Cog):
 
     @commands.Cog.listener()
     async def on_member_update(self, before, after):
+        if after.bot:
+            return
+
         # Text activity changed
         if self.is_text_online(before) != self.is_text_online(after):
             self.compute_member_uptime(TextActivity, after)
@@ -291,6 +303,9 @@ class Statistics(commands.Cog):
 
     @commands.Cog.listener()
     async def on_voice_state_update(self, member, before, after):
+        if member.bot:
+            return
+
         # Voice activity changed
         if self.is_voice_online(before) != self.is_voice_online(after):
             self.compute_member_uptime(VoiceActivity, member)
@@ -395,6 +410,10 @@ class Statistics(commands.Cog):
             await ctx.send("Cet utilisateur n'a pas pu être trouvé. " \
                 "Respectez le format suivant: " \
                 "username#discriminator (test#0123)")
+            return
+
+        if member.bot:
+            await ctx.send("Why do you care about bots ?")
             return
 
         self.compute_all_uptime()
