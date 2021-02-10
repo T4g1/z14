@@ -61,7 +61,37 @@ class HydroHomies(commands.Cog):
 
         timer = int(os.getenv("HYDRO_TIMER", default=7200))
         self.hydrohomies. change_interval(seconds=timer)
-        self.hydrohomies.start()
+
+        self.check_voice_activity()
+
+
+    def is_voice_activity(self):
+        """ Says wether or not some users ar in voice chat or not
+        """
+        for member in self.bot.get_guild().members:
+            if member.bot:
+                continue
+
+            if self.bot.is_voice_online(member.voice):
+                return True
+
+        return False
+
+
+    def check_voice_activity(self):
+        """ Disable or enable this feature depending on voice activity
+        """
+        if self.is_voice_activity():
+            print("Starting HydroHomies feature")
+            self.hydrohomies.start()
+        else:
+            print("Stopping HydroHomies feature")
+            self.hydrohomies.cancel()
+
+
+    @commands.Cog.listener()
+    async def on_voice_state_update(self, member, before, after):
+        self.check_voice_activity()
 
 
     async def get_embedable(self):
@@ -112,6 +142,12 @@ class HydroHomies(commands.Cog):
     @tasks.loop(seconds=10)
     async def hydrohomies(self):
         async with self.lock:
+            print(self.get_reminder())
+
+            # Wait a bit, not directly
+            if self.hydrohomies.current_loop == 0:
+                return
+
             embed = None
 
             title, image_url = await self.get_embedable()
@@ -126,8 +162,6 @@ class HydroHomies(commands.Cog):
                     random.choice(SENTENCES),
                     title
                 ), embed=embed)
-
-            print(self.get_reminder())
 
 
 

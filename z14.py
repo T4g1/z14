@@ -141,6 +141,18 @@ class Z14(commands.Bot):
             return instance
 
 
+    def is_text_online(self, member):
+        """ Says if an user is online in text chat
+        """
+        return member.status == discord.Status.online
+
+
+    def is_voice_online(self, voice):
+        """ Says if an user is online in voice chat
+        """
+        return voice and voice.channel and not voice.afk
+
+
 if __name__ == "__main__":
     load_dotenv()
 
