@@ -185,12 +185,6 @@ class Statistics(commands.Cog):
         ).first()
 
         if not tracking:
-            # Create tracking information
-            if model == TextActivity:
-                self.track_text_activity(member)
-            else:
-                self.track_voice_activity(member)
-
             return
 
         last_online = tracking.datetime
@@ -220,11 +214,7 @@ class Statistics(commands.Cog):
             self.session.commit()
 
         # Update row time
-        if self.is_text_online(member):
-            tracking.datetime = datetime.utcnow()
-        # Delete row
-        else:
-            self.session.delete(tracking)
+        tracking.datetime = datetime.utcnow()
 
         self.session.commit()
 
@@ -244,11 +234,24 @@ class Statistics(commands.Cog):
     def track_activity(self, model, member):
         """ Generic activity tracking update
         """
-        activity = model(
-            datetime=datetime.utcnow(),
+        activity = self.bot.get_or_create(self.session, model,
             user_id=member.id
         )
-        self.session.add(activity)
+        activity.datetime = datetime.utcnow()
+
+        self.session.commit()
+
+
+    def track_clear(self, model, member):
+        """ Clear tracking about an user (when going offline)
+        """
+        trackings = self.session.query(model).filter(
+            model.user_id == member.id
+        ).all()
+
+        for tracking in trackings:
+            self.session.delete(tracking)
+
         self.session.commit()
 
 
@@ -280,12 +283,23 @@ class Statistics(commands.Cog):
         if self.is_text_online(before) != self.is_text_online(after):
             self.compute_member_uptime(TextActivity, after)
 
+        if self.is_text_online(after):
+            self.track_text_activity(member)
+        else:
+            self.track_clear(TextActivity, member)
+
 
     @commands.Cog.listener()
     async def on_voice_state_update(self, member, before, after):
         # Voice activity changed
         if self.is_voice_online(before) != self.is_voice_online(after):
             self.compute_member_uptime(VoiceActivity, member)
+
+        if self.is_voice_online(after):
+            self.track_voice_activity(member)
+        else:
+            self.track_clear(VoiceActivity, member)
+
 
 
     def generate_leaderboard(self, query):
@@ -419,14 +433,37 @@ class Statistics(commands.Cog):
         except TypeError:
             avg_message_sent_month = 0
 
+        # Sum of time spent online in voice today
+        sum_voice_online = self.session.query(
+            func.sum(DailyResume.voice_time)
+        ).filter(
+            and_(
+                DailyResume.user_id == member.id,
+                DailyResume.date >= today
+            )
+        ).scalar()
+
+        # Sum of time spent online in voice all time
+        sum_voice_online_total = self.session.query(
+            func.sum(DailyResume.voice_time)
+        ).filter(
+            DailyResume.user_id == member.id
+        ).scalar()
+
         await ctx.send(">>> __Stats for user {}__\n" \
             "**Messages sent total:** {}\n" \
             "**Average messages per day:** {:.2f}\n" \
-            "**Average messages this month:** {:.2f}".format(
+            "**Average messages this month:** {:.2f}\n" \
+            "\n" \
+            "**Total time in voice today:** {}\n" \
+            "**Total time in voice:** {}".format(
                 member.name,
                 sum_message_sent,
                 avg_message_sent,
                 avg_message_sent_month,
+
+                self.print_time(self.sec_to_delta(sum_voice_online)),
+                self.print_time(self.sec_to_delta(sum_voice_online_total)),
         ))
 
 
