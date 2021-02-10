@@ -96,18 +96,6 @@ class Statistics(commands.Cog):
         pass
 
 
-    def is_text_online(self, member):
-        """ Says if an user is online in text chat
-        """
-        return member.status == discord.Status.online
-
-
-    def is_voice_online(self, voice):
-        """ Says if an user is online in voice chat
-        """
-        return voice and voice.channel and not voice.afk
-
-
     def sec_to_delta(self, seconds):
         """ Convert amount of second given to timedelta string for human
         """
@@ -151,10 +139,10 @@ class Statistics(commands.Cog):
             if member.bot:
                 continue
 
-            if self.is_text_online(member):
+            if self.bot.is_text_online(member):
                 self.track_text_activity(member)
 
-            if self.is_voice_online(member.voice):
+            if self.bot.is_voice_online(member.voice):
                 self.track_voice_activity(member)
 
 
@@ -292,10 +280,10 @@ class Statistics(commands.Cog):
             return
 
         # Text activity changed
-        if self.is_text_online(before) != self.is_text_online(after):
+        if self.bot.is_text_online(before) != self.bot.is_text_online(after):
             self.compute_member_uptime(TextActivity, after)
 
-        if self.is_text_online(after):
+        if self.bot.is_text_online(after):
             self.track_text_activity(member)
         else:
             self.track_clear(TextActivity, member)
@@ -307,10 +295,10 @@ class Statistics(commands.Cog):
             return
 
         # Voice activity changed
-        if self.is_voice_online(before) != self.is_voice_online(after):
+        if self.bot.is_voice_online(before) != self.bot.is_voice_online(after):
             self.compute_member_uptime(VoiceActivity, member)
 
-        if self.is_voice_online(after):
+        if self.bot.is_voice_online(after):
             self.track_voice_activity(member)
         else:
             self.track_clear(VoiceActivity, member)
