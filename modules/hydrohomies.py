@@ -82,8 +82,9 @@ class HydroHomies(commands.Cog):
         """ Disable or enable this feature depending on voice activity
         """
         if self.is_voice_activity():
-            print("Starting HydroHomies feature")
-            self.hydrohomies.start()
+            if not self.hydrohomies.is_running():
+                print("Starting HydroHomies feature")
+                self.hydrohomies.start()
         else:
             print("Stopping HydroHomies feature")
             self.hydrohomies.cancel()
