@@ -41,6 +41,7 @@ class Z14(commands.Bot):
             'modules.kick_t4g1',
             'modules.opinion',
             'modules.ping',
+            'modules.poll',
             'modules.popof',
             'modules.score_tracker',
             'modules.self_role',

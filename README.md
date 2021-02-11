@@ -31,19 +31,8 @@ python3 z14.py
 
 ### commands
 
-* .ping - pong
-* .km - Will mute Malabar for 5 seconds
-* .kp - Send a coucou to paglops
-* .kt - Will say "Dans tes rêves @[user]"
-* .o - Shows you what to do with your opinion
-* .fr [title] [description] - Will add a feature request into z14's repository
-* .sstats - Stats on score tracking
-* .savg - Average of score tracking
-* .score [score]/-[score] - Add the given score
-* .fix [score]/-[score] - Remove latest score
-* .ban - Plays the "Et on m'ban" sample
-* .drum - Play the legendary ba dum tss sound effect
-* .bp - Sends a picture to a specific channel
+* .help - Wil lgive oyu the list of commands available to you. Check indiivdual
+modules below for more informations
 
 ## details
 
@@ -278,6 +267,14 @@ Provides various stats
 * .stats - Provides global stats
 * .suser [pseudo] - Provides stats for a specific user
 * .stop - Provides leaderboards
+
+### Poll
+
+Alows user to start polls
+
+* .poll "Question ?" - Yes/No poll
+* .poll "Question ?" "choice 1" "choice 2" ... - Multichoice poll (up to 9)
+* .polldel - Remove latest poll from that user
 
 ### Popof
 
