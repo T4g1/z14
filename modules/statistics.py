@@ -284,9 +284,9 @@ class Statistics(commands.Cog):
             self.compute_member_uptime(TextActivity, after)
 
         if self.bot.is_text_online(after):
-            self.track_text_activity(member)
+            self.track_text_activity(after)
         else:
-            self.track_clear(TextActivity, member)
+            self.track_clear(TextActivity, after)
 
 
     @commands.Cog.listener()
