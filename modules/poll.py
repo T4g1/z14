@@ -31,10 +31,19 @@ MULTI_CHOICE_EMOTES = [
 ]
 
 
-class PollOption():
-    def __init__(self, name, emote):
-        self.name = name
-        self.emote = emote
+class Polls(Base):
+    """ Save every polls made and who made them
+    """
+    __tablename__ = "polls"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+
+    user_id = Column(Integer)
+    channel_id = Column(Integer)
+    vote_msg_id = Column(Integer)
+    result_msg_id = Column(Integer)
+
+    when = Column(DateTime, default=datetime.utcnow)
 
 
 class Options(Base):
@@ -43,27 +52,12 @@ class Options(Base):
     __tablename__ = "options"
 
     id = Column(Integer, primary_key=True)
+    poll_id = Column(Integer, ForeignKey('polls.id'))
 
-    poll = Column(Integer, ForeignKey("polls.id"))
+    poll = relationship("Polls", back_populates="options")
 
     value = Column(String)
     emote = Column(String)
-
-
-class Polls(Base):
-    """ Save every polls made and who made them
-    """
-    __tablename__ = "polls"
-
-    id = Column(Integer, primary_key=True)
-    options = relationship("Options")
-
-    user_id = Column(Integer)
-    channel_id = Column(Integer)
-    vote_msg_id = Column(Integer)
-    result_msg_id = Column(Integer)
-
-    when = Column(DateTime, default=datetime.utcnow)
 
 
 class Poll(commands.Cog):
@@ -75,6 +69,8 @@ class Poll(commands.Cog):
 
         Session = sessionmaker(bind=self.bot.engine)
         self.session = Session()
+
+        Polls.options = relationship("Options", back_populates="poll")
 
         Base.metadata.create_all(self.bot.engine)
 
@@ -119,8 +115,9 @@ class Poll(commands.Cog):
         result_message = await channel.fetch_message(poll.result_msg_id)
 
         reactions = vote_message.reactions
-        content = ""
 
+        # Filter and sort results
+        results = []
         for option in poll.options:
             option_reaction = None
             for reaction in vote_message.reactions:
@@ -134,9 +131,15 @@ class Poll(commands.Cog):
                 users = await option_reaction.users().flatten()
                 count = len(users)
 
-            content += "{} {}\n".format(option.emote, count)
+            if count <= 0:
+                continue
 
-        content += "Max: {}\n".format(len(reactions))
+            results.append((option.emote, count))
+
+        # Construct results message
+        content = ">>> Total votes: {}\n".format(len(reactions))
+        for result in sorted(results, key=lambda result: result[1]):
+            content += "{} {}\n".format(result[0], result[1])
 
         await result_message.edit(content=content)
 
@@ -176,20 +179,21 @@ class Poll(commands.Cog):
 
             options = [ option1, option2]
 
-        poll = self.bot.get_or_create(self.session, Polls,
-            user_id = ctx.author.id
-        )
-
         vote_message = await ctx.send(self.create_vote_message(title, options))
-        result_message = await ctx.send("Result message")
+        result_message = await ctx.send(">>> Total votes: 0\n")
 
         # Save the poll details
-        poll.channel_id = ctx.channel.id
-        poll.vote_msg_id = vote_message.id
-        poll.result_msg_id = result_message.id
+        poll = Polls(
+            user_id=ctx.author.id,
+            channel_id = ctx.channel.id,
+            vote_msg_id = vote_message.id,
+            result_msg_id = result_message.id
+        )
+        self.session.add(poll)
+        self.session.commit()
 
         for option in options:
-            option.poll = poll.id
+            option.poll_id = poll.id
             self.session.add(option)
 
         self.session.commit()
@@ -269,7 +273,7 @@ class Poll(commands.Cog):
         for option in options:
             options_messages.append("{} {}".format(option.emote, option.value))
 
-        return "{}\n{}".format(title, "\n".join(options_messages))
+        return ">>> {}\n{}".format(title, "\n".join(options_messages))
 
 
 def setup(bot):
