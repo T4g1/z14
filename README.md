@@ -255,6 +255,7 @@ Joins the user that invokes it in vocal and plays a sound effect
 
 * .ban - Do the "Et on m'ban" sound effect
 * .drum - Do the "Ba dum tss" sound effect
+* .shame - Do the "Honteux" sound effect
 
 #### Dependancy
 
@@ -266,10 +267,12 @@ a bad score
 ```
 SFX_BAN_URL=[ban URL]
 SFX_DRUM_URL=[drum URL]
+SFX_HONTEUX_URL=[honteux URL]
 ```
 
 * **SFX_BAN_URL**: Ban sound effect location
 * **SFX_DRUM_URL**: Drum sound effect location
+* **SFX_HONTEUX_URL**: Honteux sound effect location
 
 ### Statistics
 

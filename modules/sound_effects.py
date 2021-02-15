@@ -27,10 +27,13 @@ class SoundEffects(commands.Cog):
             "SFX_BAN_URL is not defined"
         assert not os.getenv("SFX_DRUM_URL") is None, \
             "SFX_DRUM_URL is not defined"
+        assert not os.getenv("SFX_HONTEUX_URL") is None, \
+            "SFX_HONTEUX_URL is not defined"
 
         try:
             sample = discord.FFmpegPCMAudio(os.getenv("SFX_BAN_URL"))
             sample = discord.FFmpegPCMAudio(os.getenv("SFX_DRUM_URL"))
+            sample = discord.FFmpegPCMAudio(os.getenv("SFX_HONTEUX_URL"))
         except:
             self.fail("Some audio sample could not be loaded, check config")
 
@@ -56,6 +59,13 @@ class SoundEffects(commands.Cog):
         """ Plays the "Ba dum tss" sound effect
         """
         await self.sound_effect(ctx, os.getenv("SFX_DRUM_URL"), "Ba dum tsss")
+
+
+    @commands.command()
+    async def shame(self, ctx):
+        """ Plays the "C'est honteux" sound effect
+        """
+        await self.sound_effect(ctx, os.getenv("SFX_HONTEUX_URL"), "C'est honteux!")
 
 
     async def sound_effect(self, ctx, sfx_url, message):
