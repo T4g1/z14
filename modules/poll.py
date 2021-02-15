@@ -16,6 +16,8 @@ from sqlalchemy import (
 
 Base = declarative_base()
 
+# Duration of a poll in days
+POLL_LIFESPAN = 2
 
 MULTI_CHOICE_EMOTES = [
     "\U00000031\U0000FE0F\U000020E3",
@@ -81,7 +83,11 @@ class Poll(commands.Cog):
 
     @commands.Cog.listener()
     async def on_ready(self):
-        for poll in self.session.query(Polls).all():
+        active_polls = self.session.query(Polls).filter(
+            Polls.when <= Polls.when + timedelta(days=POLL_LIFESPAN)
+        ).all()
+
+        for poll in active_polls:
             await self.clean_reactions(poll)
             await self.update_poll(poll)
 
@@ -110,6 +116,10 @@ class Poll(commands.Cog):
     async def update_poll(self, poll):
         """ Update poll stats based on emojis
         """
+        end = poll.when + timedelta(days=POLL_LIFESPAN)
+        if datetime.utcnow() >= end:
+            return
+
         channel = self.bot.get_guild().get_channel(poll.channel_id)
         vote_message = await channel.fetch_message(poll.vote_msg_id)
         result_message = await channel.fetch_message(poll.result_msg_id)
@@ -141,7 +151,37 @@ class Poll(commands.Cog):
         for result in sorted(results, key=lambda result: result[1]):
             content += "{} {}\n".format(result[0], result[1])
 
+        content += "Poll ends {}".format(
+            self.bot.print_time(end)
+        )
+
         await result_message.edit(content=content)
+
+
+    @commands.command(name="pd")
+    async def delete_poll(self, ctx, *args):
+        """ Remove last poll from the user
+        """
+        poll = self.session.query(Polls).filter(
+            Polls.user_id == ctx.author.id
+        ).order_by(Polls.when.desc()).first()
+        if not poll:
+            await ctx.send("No poll to delete")
+            return
+
+        # Remove both messages
+        channel = self.bot.get_guild().get_channel(poll.channel_id)
+        vote_message = await channel.fetch_message(poll.vote_msg_id)
+        result_message = await channel.fetch_message(poll.result_msg_id)
+
+        await vote_message.delete()
+        await result_message.delete()
+
+        for option in poll.options:
+            option.delete()
+
+        poll.delete()
+        self.session.commit()
 
 
     @commands.command(name="poll")
@@ -197,6 +237,9 @@ class Poll(commands.Cog):
             self.session.add(option)
 
         self.session.commit()
+
+        # Make the result message
+        await self.update_poll(poll)
 
 
     def get_poll(self, message_id):

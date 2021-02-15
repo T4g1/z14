@@ -154,6 +154,18 @@ class Z14(commands.Bot):
         return voice and voice.channel and not voice.afk
 
 
+    def sec_to_delta(self, seconds):
+        """ Convert amount of second given to timedelta string for human
+        """
+        return timedelta(seconds=seconds)
+
+
+    def print_time(self, delta):
+        """ Print a timedelta object without milliseconds
+        """
+        return str(delta).split('.')[0]
+
+
 if __name__ == "__main__":
     load_dotenv()
 
