@@ -19,7 +19,7 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install flake8 pytest black semgrep safety radon
+        pip install flake8 pytest black semgrep safety radon flake8-polyfill
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
     - name: Black
       run: |
