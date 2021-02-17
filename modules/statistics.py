@@ -8,6 +8,7 @@ from sqlalchemy import (
     DateTime,
     func,
     and_,
+    BigInteger,
 )
 
 Base = declarative_base()
@@ -37,7 +38,7 @@ class VoiceActivity(Base):
     __tablename__ = "stats_voice_activity"
 
     datetime = Column(DateTime, primary_key=True, default=datetime.utcnow)
-    user_id = Column(Integer, primary_key=True)
+    user_id = Column(BigInteger, primary_key=True)
 
 
 class TextActivity(Base):
@@ -48,7 +49,7 @@ class TextActivity(Base):
     __tablename__ = "stats_text_activity"
 
     datetime = Column(DateTime, primary_key=True, default=datetime.utcnow)
-    user_id = Column(Integer, primary_key=True)
+    user_id = Column(BigInteger, primary_key=True)
 
 
 class DailyResume(Base):
@@ -57,7 +58,7 @@ class DailyResume(Base):
     __tablename__ = "stats_daily_resume"
 
     date = Column(DateTime, primary_key=True, default=date.today)
-    user_id = Column(Integer, primary_key=True)
+    user_id = Column(BigInteger, primary_key=True)
 
     message_count = Column(Integer, default=0)
     chat_time = Column(Integer, default=0)
