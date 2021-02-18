@@ -11,8 +11,8 @@ from sqlalchemy.ext.declarative import declarative_base
 
 class Z14(commands.Bot):
     def setup(self):
-        # Topics can be used to listen/publish events across modules, it provides
-        # easy and straightforward decoupling for modules
+        # Topics can be used to listen/publish events across modules,
+        # it provides easy and straightforward decoupling for modules
         self.listeners = {}
 
         self.test()
@@ -21,14 +21,15 @@ class Z14(commands.Bot):
             self.reddit = asyncpraw.Reddit(
                 client_id=os.getenv("REDDIT_CLIENT_ID"),
                 client_secret=os.getenv("REDDIT_CLIENT_SECRET"),
-                user_agent=os.getenv("REDDIT_AGENT")
+                user_agent=os.getenv("REDDIT_AGENT"),
             )
         except Exception as e:
             print(e)
             self.reddit = None
 
         self.engine = create_engine(
-            os.getenv("DB_PATH", default="sqlite:///data.db"))
+            os.getenv("DB_PATH", default="sqlite:///data.db")
+        )
 
         self.Base = declarative_base()
 
@@ -57,35 +58,28 @@ class Z14(commands.Bot):
             if hasattr(module, "test"):
                 module.test()
 
-
     async def subscribe(self, topic: str, listener: commands.Cog):
-        """ Subscribe to an arbitrary topic
-        """
+        """Subscribe to an arbitrary topic"""
         listeners = self.listeners.get(topic, [])
         listeners.append(listener)
 
         self.listeners[topic] = listeners
 
-
     async def publish(self, ctx: commands.Context, topic: str, value=None):
-        """ Publish to an arbitrary topic
-        """
+        """Publish to an arbitrary topic"""
         for listener in self.listeners.get(topic, []):
             if hasattr(listener, "on_topic_published"):
                 await listener.on_topic_published(ctx, topic, value)
 
-
     def get_guild(self):
-        """Return the main guild
-        """
+        """Return the main guild"""
         return self.guilds[0]
 
-
     def test(self):
-        assert not os.getenv("TOKEN") is None, \
-            "TOKEN not found: Make sur you have a .env at z14 root"
-        assert not os.getenv("DB_PATH") is None, \
-            "DB_PATH not found"
+        assert (
+            not os.getenv("TOKEN") is None
+        ), "TOKEN not found: Make sur you have a .env at z14 root"
+        assert not os.getenv("DB_PATH") is None, "DB_PATH not found"
 
         """
         # Optionnal parameters
@@ -97,28 +91,30 @@ class Z14(commands.Bot):
             "REDDIT_AGENT not found"
         """
 
-
-    @watch(path='modules')
+    @watch(path="modules")
     async def on_ready(self):
-        """ Called when z14 is connected and ready to receive events
-        """
-        assert len(self.guilds) == 1,  \
-            "Connected to too many guilds, we support only one right now"
+        """Called when z14 is connected and ready to receive events"""
+        assert (
+            len(self.guilds) == 1
+        ), "Connected to too many guilds, we support only one right now"
 
         print("z14 is ready")
 
-
     async def give_role(self, member, role):
-        print("Giving role {} to {}".format(
-            role.name, member.name.encode("ascii", "ignore")))
+        print(
+            "Giving role {} to {}".format(
+                role.name, member.name.encode("ascii", "ignore")
+            )
+        )
         await member.add_roles(role)
 
-
     async def remove_role(self, member, role):
-        print("Removing role {} from {}".format(
-            role.name, member.name.encode("ascii", "ignore")))
+        print(
+            "Removing role {} from {}".format(
+                role.name, member.name.encode("ascii", "ignore")
+            )
+        )
         await member.remove_roles(role)
-
 
     async def remove_emoji(self, member, emoji, channel_id, message_id):
         """
@@ -128,10 +124,8 @@ class Z14(commands.Bot):
         message = await channel.fetch_message(message_id)
         await message.remove_reaction(emoji, member)
 
-
     def get_or_create(self, session, model, **kwargs):
-        """ Get data from a model and create it if it does not exist
-        """
+        """Get data from a model and create it if it does not exist"""
         instance = session.query(model).filter_by(**kwargs).first()
         if instance:
             return instance
@@ -141,16 +135,12 @@ class Z14(commands.Bot):
             session.commit()
             return instance
 
-
     def is_text_online(self, member):
-        """ Says if an user is online in text chat
-        """
+        """Says if an user is online in text chat"""
         return member.status == discord.Status.online
 
-
     def is_voice_online(self, voice):
-        """ Says if an user is online in voice chat
-        """
+        """Says if an user is online in voice chat"""
         return voice and voice.channel and not voice.afk
 
 
@@ -171,7 +161,7 @@ if __name__ == "__main__":
 
     intents = discord.Intents.all()
 
-    bot = Z14(command_prefix='.', intents=intents)
+    bot = Z14(command_prefix=".", intents=intents)
 
     bot.setup()
 
