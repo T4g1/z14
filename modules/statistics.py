@@ -1,3 +1,5 @@
+import discord
+
 from discord.ext import commands
 from datetime import date, datetime, timedelta
 from sqlalchemy.ext.declarative import declarative_base
@@ -339,10 +341,8 @@ class Statistics(commands.Cog):
         )
 
     @commands.command(name="suser")
-    async def user_statistics(self, ctx, user_name):
+    async def user_statistics(self, ctx, member: discord.Member):
         """Provides statistics about a particular user"""
-        member = self.bot.get_guild().get_member_named(user_name)
-
         if not member:
             await ctx.send(
                 "Cet utilisateur n'a pas pu être trouvé. "
