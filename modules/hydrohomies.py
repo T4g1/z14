@@ -3,12 +3,14 @@ import os
 import discord
 import random
 
+from datetime import date
 from discord.ext import commands, tasks
 
 # These two variables determine how the posts embed will cycle
 # If max size is too high or limit too low, nothing will get embedded
 HISTORY_MAX_SIZE = 10
 REDDIT_LIMIT = 50
+FRIDAY = 4
 
 SENTENCES = [
     "Don't forget to drink water!",
@@ -37,6 +39,7 @@ class HydroHomies(commands.Cog):
             not os.getenv("HYDRO_CHANNEL") is None
         ), "HYDRO_CHANNEL is not defined"
         assert not os.getenv("HYDRO_SUB") is None, "HYDRO_SUB is not defined"
+        assert not os.getenv("HYDRO_FRIDAY") is None, "HYDRO_FRIDAY is not defined"
 
         try:
             _ = int(os.getenv("HYDRO_TIMER", default=7200))
@@ -55,8 +58,6 @@ class HydroHomies(commands.Cog):
     async def on_ready(self):
         channel_id = int(os.getenv("HYDRO_CHANNEL", default="0"))
         self.channel = self.bot.get_guild().get_channel(channel_id)
-
-        self.subreddit = os.getenv("HYDRO_SUB")
 
         timer = int(os.getenv("HYDRO_TIMER", default=7200))
         self.hydrohomies.change_interval(seconds=timer)
@@ -98,6 +99,10 @@ class HydroHomies(commands.Cog):
 
         title = None
         embedable = None
+
+        self.subreddit = os.getenv("HYDRO_SUB")
+        if date.today().weekday() == FRIDAY:
+            self.subreddit = os.getenv("HYDRO_FRIDAY")
 
         subreddit = await self.bot.reddit.subreddit(self.subreddit)
         async for submission in subreddit.hot(limit=REDDIT_LIMIT):
