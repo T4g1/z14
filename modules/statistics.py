@@ -83,14 +83,6 @@ class Statistics(commands.Cog):
     def test(self):
         pass
 
-    def sec_to_delta(self, seconds):
-        """Convert amount of second given to timedelta string for human"""
-        return timedelta(seconds=seconds)
-
-    def print_time(self, delta):
-        """Print a timedelta object without milliseconds"""
-        return str(delta).split(".")[0]
-
     @commands.Cog.listener()
     async def on_ready(self):
         """Bot goes online"""
@@ -433,8 +425,10 @@ class Statistics(commands.Cog):
                 sum_message_sent,
                 avg_message_sent,
                 avg_message_sent_month,
-                self.print_time(self.sec_to_delta(sum_voice_online)),
-                self.print_time(self.sec_to_delta(sum_voice_online_total)),
+                self.bot.print_time(self.bot.sec_to_delta(sum_voice_online)),
+                self.bot.print_time(
+                    self.bot.sec_to_delta(sum_voice_online_total)
+                ),
             )
         )
 
@@ -556,19 +550,25 @@ class Statistics(commands.Cog):
             "**Average time connected in voice/day:** {}\n"
             "**Average time connected in text/month:** {}\n"
             "**Average time connected in voice/month:** {}".format(
-                self.print_time(z14_uptime),
+                self.bot.print_time(z14_uptime),
                 len(ctx.guild.members),
                 online_users_today,
                 avg_online_users,
                 message_sent_today,
                 avg_message_sent,
                 avg_message_sent_month,
-                self.print_time(self.sec_to_delta(sum_voice_online)),
-                self.print_time(self.sec_to_delta(sum_voice_online_total)),
-                self.print_time(self.sec_to_delta(avg_text_online)),
-                self.print_time(self.sec_to_delta(avg_voice_online)),
-                self.print_time(self.sec_to_delta(avg_text_online_month)),
-                self.print_time(self.sec_to_delta(avg_voice_online_month)),
+                self.bot.print_time(self.bot.sec_to_delta(sum_voice_online)),
+                self.bot.print_time(
+                    self.bot.sec_to_delta(sum_voice_online_total)
+                ),
+                self.bot.print_time(self.bot.sec_to_delta(avg_text_online)),
+                self.bot.print_time(self.bot.sec_to_delta(avg_voice_online)),
+                self.bot.print_time(
+                    self.bot.sec_to_delta(avg_text_online_month)
+                ),
+                self.bot.print_time(
+                    self.bot.sec_to_delta(avg_voice_online_month)
+                ),
             )
         )
 

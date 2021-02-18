@@ -2,6 +2,7 @@ import discord
 import os
 import asyncpraw
 
+from datetime import timedelta
 from cogwatch import watch
 from dotenv import load_dotenv
 from discord.ext import commands
@@ -42,6 +43,7 @@ class Z14(commands.Bot):
             "modules.kick_t4g1",
             "modules.opinion",
             "modules.ping",
+            "modules.poll",
             "modules.popof",
             "modules.score_tracker",
             "modules.self_role",
@@ -141,6 +143,14 @@ class Z14(commands.Bot):
     def is_voice_online(self, voice):
         """Says if an user is online in voice chat"""
         return voice and voice.channel and not voice.afk
+
+    def sec_to_delta(self, seconds):
+        """Convert amount of second given to timedelta string for human"""
+        return timedelta(seconds=seconds)
+
+    def print_time(self, delta):
+        """Print a timedelta object without milliseconds"""
+        return str(delta).split(".")[0]
 
 
 if __name__ == "__main__":
