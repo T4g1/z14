@@ -85,11 +85,13 @@ If Reddit API is configured and enabled, will also embed image to the reminder
 HYDRO_TIMER=7200
 HYDRO_CHANNEL=[CHANNEL ID]
 HYDRO_SUB=HydroHomies
+HYDRO_FRIDAY=beerporn
 ```
 
 * **HYDRO_TIMER**: Time in second between reminders
 * **HYDRO_CHANNEL**: Channel ID where to send reminders to
-* **HYDRO_URL**: Subreddit where to look for embeddable
+* **HYDRO_SUB**: Subreddit where to look for embeddable
+* **HYDRO_FRIDAY**: Subreddit where to look for embeddable on friday
 
 ### Feature Request
 
