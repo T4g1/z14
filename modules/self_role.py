@@ -55,8 +55,7 @@ class SelfRole(commands.Cog):
         await self.update_roles(message)
 
     async def clean_emojis(self, message):
-        """ Remove non wanted emojis from role message
-        """
+        """Remove non wanted emojis from role message"""
         for message_reaction in message.reactions:
             if message_reaction.emoji.name not in self.roles_mapping.keys():
                 users = await message_reaction.users().flatten()
@@ -71,7 +70,7 @@ class SelfRole(commands.Cog):
                 break
 
     async def update_roles(self, message):
-        """ Update users roles based on reaction on the given message and
+        """Update users roles based on reaction on the given message and
         according to roles_mapping
         """
         for emoji, role in self.roles_mapping.items():

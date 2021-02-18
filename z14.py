@@ -2,6 +2,7 @@ import discord
 import os
 import asyncpraw
 
+from datetime import timedelta
 from cogwatch import watch
 from dotenv import load_dotenv
 from discord.ext import commands
@@ -34,20 +35,20 @@ class Z14(commands.Bot):
         self.Base = declarative_base()
 
         self.modules = [
-            'modules.auto_role',
-            'modules.feature_request',
-            'modules.hydrohomies',
-            'modules.kick_malabar',
-            'modules.kick_paglops',
-            'modules.kick_t4g1',
-            'modules.opinion',
-            'modules.ping',
-            'modules.poll',
-            'modules.popof',
-            'modules.score_tracker',
-            'modules.self_role',
-            'modules.sound_effects',
-            'modules.statistics',
+            "modules.auto_role",
+            "modules.feature_request",
+            "modules.hydrohomies",
+            "modules.kick_malabar",
+            "modules.kick_paglops",
+            "modules.kick_t4g1",
+            "modules.opinion",
+            "modules.ping",
+            "modules.poll",
+            "modules.popof",
+            "modules.score_tracker",
+            "modules.self_role",
+            "modules.sound_effects",
+            "modules.statistics",
         ]
 
         self.Base.metadata.create_all(self.engine)
@@ -143,17 +144,13 @@ class Z14(commands.Bot):
         """Says if an user is online in voice chat"""
         return voice and voice.channel and not voice.afk
 
-
     def sec_to_delta(self, seconds):
-        """ Convert amount of second given to timedelta string for human
-        """
+        """Convert amount of second given to timedelta string for human"""
         return timedelta(seconds=seconds)
 
-
     def print_time(self, delta):
-        """ Print a timedelta object without milliseconds
-        """
-        return str(delta).split('.')[0]
+        """Print a timedelta object without milliseconds"""
+        return str(delta).split(".")[0]
 
 
 if __name__ == "__main__":

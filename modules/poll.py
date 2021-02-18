@@ -1,18 +1,8 @@
-import os
-import discord
-
 from discord.ext import commands
-from datetime import date, datetime, timedelta
+from datetime import datetime, timedelta
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker, aliased, relationship
-from sqlalchemy import (
-    Column,
-    String,
-    ForeignKey,
-    Integer,
-    DateTime,
-    or_
-)
+from sqlalchemy.orm import sessionmaker, relationship
+from sqlalchemy import Column, String, ForeignKey, Integer, DateTime, or_
 
 Base = declarative_base()
 
@@ -34,8 +24,8 @@ MULTI_CHOICE_EMOTES = [
 
 
 class Polls(Base):
-    """ Save every polls made and who made them
-    """
+    """Save every polls made and who made them"""
+
     __tablename__ = "polls"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
@@ -49,12 +39,12 @@ class Polls(Base):
 
 
 class Options(Base):
-    """ One option for a poll
-    """
+    """One option for a poll"""
+
     __tablename__ = "options"
 
     id = Column(Integer, primary_key=True)
-    poll_id = Column(Integer, ForeignKey('polls.id'))
+    poll_id = Column(Integer, ForeignKey("polls.id"))
 
     poll = relationship("Polls", back_populates="options")
 
@@ -66,6 +56,7 @@ class Poll(commands.Cog):
     """
     Allow users to starts polling other users
     """
+
     def __init__(self, bot):
         self.bot = bot
 
@@ -76,25 +67,23 @@ class Poll(commands.Cog):
 
         Base.metadata.create_all(self.bot.engine)
 
-
     def test(self):
         pass
 
-
     @commands.Cog.listener()
     async def on_ready(self):
-        active_polls = self.session.query(Polls).filter(
-            Polls.when <= Polls.when + timedelta(days=POLL_LIFESPAN)
-        ).all()
+        active_polls = (
+            self.session.query(Polls)
+            .filter(Polls.when <= Polls.when + timedelta(days=POLL_LIFESPAN))
+            .all()
+        )
 
         for poll in active_polls:
             await self.clean_reactions(poll)
             await self.update_poll(poll)
 
-
     async def clean_reactions(self, poll):
-        """ Clean wrong emoji on polls
-        """
+        """Clean wrong emoji on polls"""
         channel = self.bot.get_guild().get_channel(poll.channel_id)
         vote_message = await channel.fetch_message(poll.vote_msg_id)
         result_message = await channel.fetch_message(poll.result_msg_id)
@@ -112,10 +101,8 @@ class Poll(commands.Cog):
             for user in users:
                 reaction.remove(user)
 
-
     async def update_poll(self, poll):
-        """ Update poll stats based on emojis
-        """
+        """Update poll stats based on emojis"""
         end = poll.when + timedelta(days=POLL_LIFESPAN)
         if datetime.utcnow() >= end:
             return
@@ -135,7 +122,7 @@ class Poll(commands.Cog):
                     option_reaction = reaction
                     break
 
-            if option_reaction == None:
+            if option_reaction is None:
                 count = 0
             else:
                 users = await option_reaction.users().flatten()
@@ -151,20 +138,19 @@ class Poll(commands.Cog):
         for result in sorted(results, key=lambda result: result[1]):
             content += "{} {}\n".format(result[0], result[1])
 
-        content += "Poll ends {}".format(
-            self.bot.print_time(end)
-        )
+        content += "Poll ends {}".format(self.bot.print_time(end))
 
         await result_message.edit(content=content)
 
-
     @commands.command(name="pd")
     async def delete_poll(self, ctx, *args):
-        """ Remove last poll from the user
-        """
-        poll = self.session.query(Polls).filter(
-            Polls.user_id == ctx.author.id
-        ).order_by(Polls.when.desc()).first()
+        """Remove last poll from the user"""
+        poll = (
+            self.session.query(Polls)
+            .filter(Polls.user_id == ctx.author.id)
+            .order_by(Polls.when.desc())
+            .first()
+        )
         if not poll:
             await ctx.send("No poll to delete")
             return
@@ -183,14 +169,14 @@ class Poll(commands.Cog):
         poll.delete()
         self.session.commit()
 
-
     @commands.command(name="poll")
     async def create_poll(self, ctx, *args):
-        """ Starts a poll
-        """
+        """Starts a poll"""
         if len(args) <= 0:
-            await ctx.send("Wrong command format: " \
-                "You need to at least specify a question")
+            await ctx.send(
+                "Wrong command format: "
+                "You need to at least specify a question"
+            )
             return
 
         title = args[0]
@@ -199,10 +185,12 @@ class Poll(commands.Cog):
 
         # Too many choices
         if len(args[1:]) > len(MULTI_CHOICE_EMOTES):
-            await ctx.send("There is too many choice in that poll, " \
+            await ctx.send(
+                "There is too many choice in that poll, "
                 "limite yourself to {} options!".format(
                     len(MULTI_CHOICE_EMOTES)
-            ))
+                )
+            )
             return
 
         # Create all options
@@ -217,7 +205,7 @@ class Poll(commands.Cog):
             option1 = Options(value="Yes", emote="\U00002705")
             option2 = Options(value="No", emote="\U0000274C")
 
-            options = [ option1, option2]
+            options = [option1, option2]
 
         vote_message = await ctx.send(self.create_vote_message(title, options))
         result_message = await ctx.send(">>> Total votes: 0\n")
@@ -225,9 +213,9 @@ class Poll(commands.Cog):
         # Save the poll details
         poll = Polls(
             user_id=ctx.author.id,
-            channel_id = ctx.channel.id,
-            vote_msg_id = vote_message.id,
-            result_msg_id = result_message.id
+            channel_id=ctx.channel.id,
+            vote_msg_id=vote_message.id,
+            result_msg_id=result_message.id,
         )
         self.session.add(poll)
         self.session.commit()
@@ -241,31 +229,29 @@ class Poll(commands.Cog):
         # Make the result message
         await self.update_poll(poll)
 
-
     def get_poll(self, message_id):
-        """" Get the poll related to given message ID
-        """
-        return self.session.query(Polls).filter(
-            or_(
-                Polls.vote_msg_id == message_id,
-                Polls.result_msg_id == message_id
+        """ " Get the poll related to given message ID"""
+        return (
+            self.session.query(Polls)
+            .filter(
+                or_(
+                    Polls.vote_msg_id == message_id,
+                    Polls.result_msg_id == message_id,
+                )
             )
-        ).first()
-
+            .first()
+        )
 
     def get_emoji_name(self, emoji):
-        """ Extract name of an emoji
-        """
+        """Extract name of an emoji"""
         emoji_name = emoji
         if type(emoji) != str:
             emoji_name = emoji.name
 
         return emoji_name
 
-
     def is_poll_option(self, poll, emoji):
-        """ Tells wether or not this emoji can be used on this poll
-        """
+        """Tells wether or not this emoji can be used on this poll"""
         emoji_name = self.get_emoji_name(emoji)
 
         for option in poll.options:
@@ -273,7 +259,6 @@ class Poll(commands.Cog):
                 return True
 
         return False
-
 
     @commands.Cog.listener()
     async def on_raw_reaction_add(self, payload):
@@ -295,7 +280,6 @@ class Poll(commands.Cog):
 
         await self.update_poll(poll)
 
-
     @commands.Cog.listener()
     async def on_raw_reaction_remove(self, payload):
         poll = self.get_poll(payload.message_id)
@@ -308,10 +292,8 @@ class Poll(commands.Cog):
 
         await self.update_poll(poll)
 
-
     def create_vote_message(self, title, options):
-        """ Create the message for the voting message
-        """
+        """Create the message for the voting message"""
         options_messages = []
         for option in options:
             options_messages.append("{} {}".format(option.emote, option.value))
@@ -321,4 +303,3 @@ class Poll(commands.Cog):
 
 def setup(bot):
     bot.add_cog(Poll(bot))
-

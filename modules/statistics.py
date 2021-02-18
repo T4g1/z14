@@ -425,10 +425,12 @@ class Statistics(commands.Cog):
                 sum_message_sent,
                 avg_message_sent,
                 avg_message_sent_month,
-
                 self.bot.print_time(self.bot.sec_to_delta(sum_voice_online)),
-                self.bot.print_time(self.bot.sec_to_delta(sum_voice_online_total)),
-        ))
+                self.bot.print_time(
+                    self.bot.sec_to_delta(sum_voice_online_total)
+                ),
+            )
+        )
 
     @commands.command(name="stats")
     async def statistics(self, ctx):
@@ -549,22 +551,26 @@ class Statistics(commands.Cog):
             "**Average time connected in text/month:** {}\n"
             "**Average time connected in voice/month:** {}".format(
                 self.bot.print_time(z14_uptime),
-
                 len(ctx.guild.members),
                 online_users_today,
                 avg_online_users,
                 message_sent_today,
                 avg_message_sent,
                 avg_message_sent_month,
-
                 self.bot.print_time(self.bot.sec_to_delta(sum_voice_online)),
-                self.bot.print_time(self.bot.sec_to_delta(sum_voice_online_total)),
-
+                self.bot.print_time(
+                    self.bot.sec_to_delta(sum_voice_online_total)
+                ),
                 self.bot.print_time(self.bot.sec_to_delta(avg_text_online)),
                 self.bot.print_time(self.bot.sec_to_delta(avg_voice_online)),
-                self.bot.print_time(self.bot.sec_to_delta(avg_text_online_month)),
-                self.bot.print_time(self.bot.sec_to_delta(avg_voice_online_month)),
-        ))
+                self.bot.print_time(
+                    self.bot.sec_to_delta(avg_text_online_month)
+                ),
+                self.bot.print_time(
+                    self.bot.sec_to_delta(avg_voice_online_month)
+                ),
+            )
+        )
 
     @user_statistics.error
     async def error_handler(self, ctx, error):
