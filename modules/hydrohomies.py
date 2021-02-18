@@ -100,7 +100,7 @@ class HydroHomies(commands.Cog):
         embedable = None
 
         subreddit = await self.bot.reddit.subreddit(self.subreddit)
-        async for submission in subreddit.top(limit=REDDIT_LIMIT):
+        async for submission in subreddit.hot(limit=REDDIT_LIMIT):
             # Text submission
             if submission.is_self:
                 continue
