@@ -259,11 +259,13 @@ a bad score
 SFX_BAN_URL=[ban URL]
 SFX_DRUM_URL=[drum URL]
 SFX_HONTEUX_URL=[honteux URL]
+SFX_BOOMER_URL=[boomer URL]
 ```
 
 * **SFX_BAN_URL**: Ban sound effect location
 * **SFX_DRUM_URL**: Drum sound effect location
 * **SFX_HONTEUX_URL**: Honteux sound effect location
+* **SFX_BOOMER_URL**: Boomer sound effect location
 
 ### Statistics
 

@@ -2,8 +2,11 @@ import os
 
 import asyncio
 import discord
+import logging
 
 from discord.ext import commands
+from discord.errors import ClientException
+from os import path
 
 DRUM_SCORE_MAX = 5
 
@@ -22,22 +25,9 @@ class SoundEffects(commands.Cog):
         await self.bot.subscribe("score_tracker.scored", self)
 
     def test(self):
-        assert (
-            not os.getenv("SFX_BAN_URL") is None
-        ), "SFX_BAN_URL is not defined"
-        assert (
-            not os.getenv("SFX_DRUM_URL") is None
-        ), "SFX_DRUM_URL is not defined"
-        assert (
-            not os.getenv("SFX_HONTEUX_URL") is None
-        ), "SFX_HONTEUX_URL is not defined"
-
-        try:
-            _ = discord.FFmpegPCMAudio(os.getenv("SFX_BAN_URL"))
-            _ = discord.FFmpegPCMAudio(os.getenv("SFX_DRUM_URL"))
-            _ = discord.FFmpegPCMAudio(os.getenv("SFX_HONTEUX_URL"))
-        except Exception:
-            self.fail("Some audio sample could not be loaded, check config")
+        for sfx in ["SFX_BAN_URL", "SFX_DRUM_URL", "SFX_HONTEUX_URL", "SFX_BOOMER_URL"]:
+            assert (not os.getenv(sfx) is None), sfx + " is not defined"
+            assert (path.isfile(os.getenv(sfx)) ), sfx + " does not exist"
 
     async def on_topic_published(self, ctx, topic, value):
         """Module scored_tracker scored some points"""
@@ -61,6 +51,13 @@ class SoundEffects(commands.Cog):
         """Plays the "C'est honteux" sound effect"""
         await self.sound_effect(
             ctx, os.getenv("SFX_HONTEUX_URL"), "C'est honteux!"
+        )
+
+    @commands.command(name="ok", aliases=["ob"])
+    async def boomer(self, ctx, name: str):
+        """Plays the "Ok boomer..." sound effect"""
+        await self.sound_effect(
+            ctx, os.getenv("SFX_BOOMER_URL"), "Ok boomer " + name
         )
 
     async def sound_effect(self, ctx, sfx_url, message):
