@@ -19,7 +19,6 @@ class SoundEffects(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.voice_client = None
-        self.test()
 
     @commands.Cog.listener()
     async def on_ready(self):

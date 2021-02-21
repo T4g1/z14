@@ -2,4 +2,3 @@
 modules/__pycache__/
 *.dat
 *.db
-**.vscode/*
