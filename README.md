@@ -15,7 +15,17 @@ Make a local copy of .env:
 cp .env.sample .env
 ```
 
-Setup values inside .env according to your environment and settings.
+You will need to create a Discord bot and provide a token: See https://discord.com/developers/applications to get one
+* Presence intent, Server member intent and Message content intent are required for the bot
+
+You also need a Reddit account and an application to get access to the API:
+
+* Create an application here: https://www.reddit.com/prefs/apps
+* See https://github.com/reddit-archive/reddit/wiki/OAuth2-Quick-Start-Example#first-steps for more details
+
+Setup values inside .env according to your environment and settings. .env.sample is provided as a base for this file
+
+Enable/disable any modules directly in z14.py
 
 Run z14!
 ```
@@ -31,15 +41,10 @@ python3 z14.py
 
 ### commands
 
-* .help - Wil lgive oyu the list of commands available to you. Check indiivdual
+* .help - Will give you the list of commands available to you. Check individual
 modules below for more informations
 
 ## details
-
-You need a Reddit account and an application to get access to the API:
-
-* Create an application here: https://www.reddit.com/prefs/apps
-* See https://github.com/reddit-archive/reddit/wiki/OAuth2-Quick-Start-Example#first-steps for more details
 
 You need the following configuration in `.env`:
 
@@ -52,10 +57,10 @@ REDDIT_AGENT=[REDDIT AGENT]
 ```
 
 * **TOKEN**: Secret TOKEN of the bot
-* **DB_PATH**: Where will the DB be stored
+* **DB_PATH**: Where will the DB be stored. Typically `sqlite:///data.db`
 * **REDDIT_CLIENT_ID**: Optionnal: Auth for reddit
 * **REDDIT_CLIENT_SECRET**: Optionnal: Auth for reddit
-* **REDDIT_AGENT**: Optionnal: Auth for reddit
+* **REDDIT_AGENT**: Optionnal: Auth for reddit (unused)
 
 ### Auto role
 
