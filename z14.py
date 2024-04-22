@@ -1,17 +1,18 @@
 import discord
 import os
 import asyncpraw
+import asyncio
 
 from datetime import timedelta
 from cogwatch import watch
 from dotenv import load_dotenv
 from discord.ext import commands
 from sqlalchemy import create_engine
-from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import declarative_base
 
 
 class Z14(commands.Bot):
-    def setup(self):
+    async def setup(self):
         # Topics can be used to listen/publish events across modules,
         # it provides easy and straightforward decoupling for modules
         self.listeners = {}
@@ -54,9 +55,10 @@ class Z14(commands.Bot):
         self.Base.metadata.create_all(self.engine)
 
         for module in self.modules:
-            self.load_extension(module)
+            await self.load_extension(module)
 
             if hasattr(module, "test"):
+                print("lol")
                 module.test()
 
     async def subscribe(self, topic: str, listener: commands.Cog):
@@ -152,14 +154,15 @@ class Z14(commands.Bot):
         """Print a timedelta object without milliseconds"""
         return str(delta).split(".")[0]
 
-
-if __name__ == "__main__":
+async def run():
     load_dotenv()
 
     intents = discord.Intents.all()
 
     bot = Z14(command_prefix=".", intents=intents)
 
-    bot.setup()
+    await bot.setup()
+    await bot.start(os.getenv("TOKEN"))
 
-    bot.run(os.getenv("TOKEN"))
+if __name__ == "__main__":
+    asyncio.run(run())

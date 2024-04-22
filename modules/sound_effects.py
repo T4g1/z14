@@ -76,17 +76,22 @@ class SoundEffects(commands.Cog):
         channel = ctx.author.voice.channel
         self.voice_client = await channel.connect()
 
-        sample = discord.FFmpegPCMAudio(sfx_url)
-        self.voice_client.play(sample)
+        try:
+            sample = discord.FFmpegPCMAudio(sfx_url)
+            self.voice_client.play(sample, after=self.disconnect)
+        except Exception:
+            print("Unable to load {}".format(sfx_url))
 
         await ctx.send(message)
 
-        while self.voice_client.is_playing():
-            await asyncio.sleep(1)
+    def disconnect(self, error):
+        coro = self.voice_client.disconnect()
+        thread = asyncio.run_coroutine_threadsafe(coro, self.voice_client.loop)
+        try:
+            thread.result()
+        except:
+            print("Unable to leave voice chat")
 
-        await asyncio.sleep(1)
-        await self.voice_client.disconnect()
 
-
-def setup(bot):
-    bot.add_cog(SoundEffects(bot))
+async def setup(bot):
+    await bot.add_cog(SoundEffects(bot))

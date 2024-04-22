@@ -19,5 +19,5 @@ class KickT4g1(commands.Cog):
         await ctx.author.send("*Fear the wrath of T4g1*")
 
 
-def setup(bot):
-    bot.add_cog(KickT4g1(bot))
+async def setup(bot):
+    await bot.add_cog(KickT4g1(bot))

@@ -45,5 +45,5 @@ class AutoRole(commands.Cog):
         await self.bot.give_role(member, self.role)
 
 
-def setup(bot):
-    bot.add_cog(AutoRole(bot))
+async def setup(bot):
+    await bot.add_cog(AutoRole(bot))

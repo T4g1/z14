@@ -15,5 +15,5 @@ class Ping(commands.Cog):
         await ctx.send("pong")
 
 
-def setup(bot):
-    bot.add_cog(Ping(bot))
+async def setup(bot):
+    await bot.add_cog(Ping(bot))

@@ -244,6 +244,8 @@ class ScoreTracker(commands.Cog):
                 "Encountered unexpected error: {} {}".format(error, type(error))
             )
 
+def test():
+    print("coucou")
 
-def setup(bot):
-    bot.add_cog(ScoreTracker(bot))
+async def setup(bot):
+    await bot.add_cog(ScoreTracker(bot))

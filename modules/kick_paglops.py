@@ -42,5 +42,5 @@ class KickPaglops(commands.Cog):
         await ctx.send("Coucou {}".format(self.paglops.mention), embed=embed)
 
 
-def setup(bot):
-    bot.add_cog(KickPaglops(bot))
+async def setup(bot):
+    await bot.add_cog(KickPaglops(bot))

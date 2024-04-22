@@ -185,5 +185,5 @@ class SelfRole(commands.Cog):
         await self.process_reaction(payload, remove=True)
 
 
-def setup(bot):
-    bot.add_cog(SelfRole(bot))
+async def setup(bot):
+    await bot.add_cog(SelfRole(bot))

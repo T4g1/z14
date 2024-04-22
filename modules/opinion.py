@@ -27,6 +27,12 @@ class Opinion(commands.Cog):
 
         await ctx.send(embed=embed)
 
+    @opinion.error
+    async def error_handler(self, ctx, error):
+        print(
+            "Encountered unexpected error: {} {}".format(error, type(error))
+        )
 
-def setup(bot):
-    bot.add_cog(Opinion(bot))
+
+async def setup(bot):
+    await bot.add_cog(Opinion(bot))

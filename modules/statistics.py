@@ -2,8 +2,7 @@ import discord
 
 from discord.ext import commands
 from datetime import date, datetime, timedelta
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import declarative_base, sessionmaker
 from sqlalchemy import (
     Column,
     Integer,
@@ -612,5 +611,5 @@ class Statistics(commands.Cog):
         )
 
 
-def setup(bot):
-    bot.add_cog(Statistics(bot))
+async def setup(bot):
+    await bot.add_cog(Statistics(bot))

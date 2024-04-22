@@ -1,7 +1,6 @@
 from discord.ext import commands
 from datetime import datetime, timedelta
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker, relationship
+from sqlalchemy.orm import declarative_base, sessionmaker, relationship
 from sqlalchemy import Column, String, ForeignKey, Integer, DateTime, or_
 
 Base = declarative_base()
@@ -301,5 +300,5 @@ class Poll(commands.Cog):
         return ">>> {}\n{}".format(title, "\n".join(options_messages))
 
 
-def setup(bot):
-    bot.add_cog(Poll(bot))
+async def setup(bot):
+    await bot.add_cog(Poll(bot))
