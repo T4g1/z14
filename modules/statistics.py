@@ -574,6 +574,11 @@ class Statistics(commands.Cog):
 
     @user_statistics.error
     async def error_handler(self, ctx, error):
+        if isinstance(error, commands.MemberNotFound):
+            await ctx.send(
+                "Impossible de trouver l'utilisateur: {} (essaye avec @ puis le pseudo de la personne)".format(error.argument)
+            )
+
         if isinstance(error, commands.MissingRequiredArgument):
             await ctx.send(
                 "The following argument is missing: {}".format(error.param)
