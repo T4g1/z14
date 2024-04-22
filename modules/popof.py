@@ -26,7 +26,10 @@ class Popof(commands.Cog):
 
     async def is_irc_channel(ctx):
         """Check that this is the correct channel"""
-        return ctx.channel.id == int(os.getenv("POPOF_CHANNEL"))
+        try:
+            return ctx.channel.id == int(os.getenv("POPOF_CHANNEL"))
+        except Exception:
+            return False
 
     @commands.command(name="bp")
     @commands.check(is_irc_channel)
